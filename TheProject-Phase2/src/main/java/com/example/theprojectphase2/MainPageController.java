@@ -2,6 +2,7 @@ package com.example.theprojectphase2;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableArray;
 import javafx.collections.ObservableList;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 public class MainPageController {
 
@@ -188,6 +190,18 @@ public class MainPageController {
 
         search_button.setOnAction(event -> loadData(user));
 
+        ToggleSwitch toggleSwitch = new ToggleSwitch();
+
+        setting.getChildren().add(toggleSwitch);
+        SimpleBooleanProperty isOn = toggleSwitch.switchOnProperty();
+        isOn.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                toggleSwitch.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                toggleSwitch.getScene().getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
+
 
     }
 
@@ -225,12 +239,12 @@ public class MainPageController {
                     }
                 });
 
-                Text text;
+                Label text;
                 if (g.getPosts().isEmpty())
-                    text = new Text(g.getGroupName() + "\n" + "No Chat Here");
+                    text = new Label(g.getGroupName() + "\n" + "No Chat Here");
 
                 else
-                    text = new Text(g.getGroupName() + "\n" + g.getPosts().get(g.getPosts().size() - 1).getContext());
+                    text = new Label(g.getGroupName() + "\n" + g.getPosts().get(g.getPosts().size() - 1).getContext());
 
                 textFlow.setTranslateY(-profileImage.getFitHeight() / 2);
                 container.getChildren().add(profileImage);
@@ -246,7 +260,7 @@ public class MainPageController {
                 container.setOnMouseClicked(this::ChooseGroupChat);
 
 
-                container.setStyle("-fx-background-color: rgb(255,255,255);");
+                //container.setStyle("-fx-background-color: rgb(255,255,255);");
 
                 container.setPrefHeight(60);
                 container.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
@@ -886,7 +900,8 @@ public class MainPageController {
                 }
             }
         });
-        textFlow.setStyle("-fx-background-color: rgb(61,99,159);" + "-fx-background-radius: 15;");
+        textFlow.setStyle("-fx-background-radius: 15;");
+        container.setStyle("-fx-background-color: transparent");
         VBox.setMargin(textFlow, new Insets(20, 0, 0, 10));
         container.getChildren().add(textFlow);
         chat_box.getChildren().add(container);
