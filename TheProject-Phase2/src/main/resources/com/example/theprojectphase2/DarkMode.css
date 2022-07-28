@@ -72,7 +72,3 @@
 TextFlow {
     -fx-background-color: -fx-base;
 }
-
-HyperLink {
-    -fx-background-color: white;
-}

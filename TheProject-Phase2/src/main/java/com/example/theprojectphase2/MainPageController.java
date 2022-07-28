@@ -99,6 +99,8 @@ public class MainPageController {
 
     boolean isInGroup;
 
+    SimpleBooleanProperty isDark;
+
     User user; //The user that's logged in his/her account
     Post pp;
 
@@ -193,8 +195,8 @@ public class MainPageController {
         ToggleSwitch toggleSwitch = new ToggleSwitch();
 
         setting.getChildren().add(toggleSwitch);
-        SimpleBooleanProperty isOn = toggleSwitch.switchOnProperty();
-        isOn.addListener((observable, oldValue, newValue) -> {
+        isDark = toggleSwitch.switchOnProperty();
+        isDark.addListener((observable, oldValue, newValue) -> {
             if(newValue)
                 toggleSwitch.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
 
@@ -603,6 +605,15 @@ public class MainPageController {
         Parent parent = loader.load();
 
         Scene scene = new Scene(parent);
+        if(isDark.getValue())
+            scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                scene.getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
 
         ProfileGroupController controller = loader.getController();
         for(Group g : user.getGroups())
@@ -707,6 +718,15 @@ public class MainPageController {
         Parent parent = loader.load();
 
         Scene scene = new Scene(parent);
+        if(isDark.getValue())
+            scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                scene.getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
 
         NewTweet_Controller tweetController = loader.getController();
         tweetController.initialize(user);
@@ -728,6 +748,16 @@ public class MainPageController {
         Parent parent = loader.load();
 
         Scene scene = new Scene(parent);
+        if(isDark.getValue())
+            scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                scene.getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
 
         UserProfileController controller = loader.getController();
         for(User u : User.Users)
@@ -750,6 +780,15 @@ public class MainPageController {
         Parent parent = loader.load();
 
         Popup popup = new Popup();
+        if(isDark.getValue())
+            popup.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                popup.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                popup.getScene().getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
         //Scene scene = new Scene(parent);
 
         MessageOptions_Controller controller = loader.getController();
@@ -764,6 +803,7 @@ public class MainPageController {
         double y = textFlow.getScene().getWindow().getY();
 
         popup.getContent().add(parent);
+
         popup.setAutoHide(true);
 
         Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();
@@ -832,7 +872,9 @@ public class MainPageController {
             }
         });
 
-        textFlow.setStyle("-fx-background-color: rgb(131,238,255);" + "-fx-background-radius: 15;");
+        container.setStyle("-fx-background-color: transparent");
+        setStyle(textFlow,post);
+
         main_type.clear();
 
         container.getChildren().add(textFlow);
@@ -902,6 +944,13 @@ public class MainPageController {
         });
         textFlow.setStyle("-fx-background-radius: 15;");
         container.setStyle("-fx-background-color: transparent");
+
+        if(isDark.getValue())
+            textFlow.getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+        else
+            textFlow.setStyle("-fx-background-color: rgb(200,200,200)");
+
         VBox.setMargin(textFlow, new Insets(20, 0, 0, 10));
         container.getChildren().add(textFlow);
         chat_box.getChildren().add(container);
@@ -944,7 +993,10 @@ public class MainPageController {
             }
         });
         textFlow.getChildren().add(text);
-        textFlow.setStyle("-fx-background-color: rgb(61,99,159);"+"-fx-background-radius: 15");
+        textFlow.setStyle("-fx-background-radius: 15");
+        container.setStyle("-fx-background-color: transparent;");
+        setStyle(textFlow,comment);
+
         textFlow.setId(String.valueOf(comment.getID()));
         textFlow.setPrefWidth(100);
         textFlow.setMinWidth(TextFlow.USE_PREF_SIZE);
@@ -1025,8 +1077,6 @@ public class MainPageController {
         });
 
 
-        container.setStyle("-fx-background-color: rgb(255,255,255);");
-
         container.setPrefHeight(60);
         container.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
         container.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
@@ -1044,6 +1094,16 @@ public class MainPageController {
         Parent parent = loader.load();
 
         Scene scene = new Scene(parent);
+        if(isDark.getValue())
+            scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                scene.getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
+
 
         FollowersController controller = loader.getController();
         controller.initialize(user);
@@ -1062,6 +1122,16 @@ public class MainPageController {
         Parent parent = loader.load();
 
         Scene scene = new Scene(parent);
+        if(isDark.getValue())
+            scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                scene.getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
 
         FollowingController controller = loader.getController();
         controller.initialize(user);
@@ -1080,6 +1150,15 @@ public class MainPageController {
         Parent parent = loader.load();
 
         Scene scene = new Scene(parent);
+        if(isDark.getValue())
+            scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                scene.getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
 
         NewGroupController mainPageController = loader.getController();
         Group group = new Group("");
@@ -1089,5 +1168,35 @@ public class MainPageController {
 
         MainStage.setScene(scene);
         MainStage.show();
+    }
+
+
+    public void setStyle(TextFlow textFlow, Post post){
+
+        if(isDark.getValue() && post.getOwner().getID() == user.getID())
+            textFlow.setStyle("-fx-background-color: rgb(11,11,69);" + "-fx-background-radius: 15;");
+
+        else if(post.getOwner().getID() == user.getID())
+            textFlow.setStyle("-fx-background-color: rgb(131,238,255);" + "-fx-background-radius: 15;");
+
+        else if(!isDark.getValue() && post.getOwner().getID() != user.getID())
+            textFlow.setStyle("-fx-background-color: rgb(200,200,200);" + "-fx-background-radius: 15;");
+
+        else if(isDark.getValue() && post.getOwner().getID() != user.getID())
+            textFlow.setStyle("-fx-background-color: #373e43;" + "-fx-background-radius: 15;");
+
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue && post.getOwner().getID() == user.getID())
+                textFlow.setStyle("-fx-background-color: rgb(11,11,69);" + "-fx-background-radius: 15;");
+
+            else if(post.getOwner().getID() == user.getID())
+                textFlow.setStyle("-fx-background-color: rgb(131,238,255);" + "-fx-background-radius: 15;");
+
+            else if(!newValue && post.getOwner().getID() != user.getID())
+                textFlow.setStyle("-fx-background-color: rgb(200,200,200);" + "-fx-background-radius: 15;");
+
+            else if(newValue && post.getOwner().getID() != user.getID())
+                textFlow.setStyle("-fx-background-color: #373e43;" + "-fx-background-radius: 15;");
+        });
     }
 }
