@@ -38,12 +38,16 @@
    <center>
       <ScrollPane fitToHeight="true" fitToWidth="true" BorderPane.alignment="CENTER">
          <content>
-            <AnchorPane prefHeight="237.0" prefWidth="599.0">
-               <children>
-                  <TextArea fx:id="newTweet_text" layoutX="67.0" layoutY="26.0" prefHeight="187.0" prefWidth="458.0" promptText="Type new  Tweet" />
-                  <ImageView fx:id="image" fitHeight="79.0" fitWidth="458.0" layoutX="67.0" layoutY="134.0" pickOnBounds="true" preserveRatio="true" />
-               </children>
-            </AnchorPane>
+            <ScrollPane prefHeight="244.0" prefWidth="600.0">
+               <content>
+                  <AnchorPane prefHeight="238.0" prefWidth="599.0">
+                     <children>
+                        <TextArea fx:id="newTweet_text" layoutX="82.0" layoutY="14.0" prefHeight="154.0" prefWidth="434.0" promptText="Type new  Tweet" />
+                        <ImageView fx:id="image" fitHeight="242.0" fitWidth="332.0" layoutX="82.0" layoutY="166.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </ScrollPane>
          </content>
       </ScrollPane>
    </center>

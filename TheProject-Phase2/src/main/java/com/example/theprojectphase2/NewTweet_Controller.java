@@ -1,5 +1,6 @@
 package com.example.theprojectphase2;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -10,7 +11,12 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.util.Base64;
 
 
 public class NewTweet_Controller {
@@ -35,17 +41,34 @@ public class NewTweet_Controller {
                 break;
             }
 
-        System.out.println(u.UserName);
+        image.setVisible(false);
+        image.setManaged(false);
 
     }
 
-    public void newPost(ActionEvent event){
+    public void newPost(ActionEvent event) throws IOException {
         Post post;
         post =  new Post(title_text.getText(), newTweet_text.getText(), user);
+        post.setOwnerId(user.getID());
+
+        DBManagerTester.insert(post);
+        System.out.println(post.getId() + "   " + post.getOwner().getUserName()+ "   " +post.getOwner().getID());
+
+        if(image.getImage() != null){
+            post.setImage(image.getImage());
+
+            BufferedImage bImage = SwingFXUtils.fromFXImage(image.getImage(), null);
+            ByteArrayOutputStream s = new ByteArrayOutputStream();
+            ImageIO.write(bImage, "png", s);
+            byte[] res  = s.toByteArray();
+            s.close();
+            String encodedFile = Base64.getEncoder().encodeToString(res);
+            post.setImageString(encodedFile);
+        }
 
         //post.setImage(image.getImage());
 
-        DBManagerTester.insert(post);
+
 
         Post.Posts.add(post);
         user.getPosts().add(post);
@@ -64,8 +87,11 @@ public class NewTweet_Controller {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Image");
 
+        image.setManaged(true);
+        image.setVisible(true);
+
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
+                new FileChooser.ExtensionFilter("Image File", "*.png", "*.jpg", "*.gif"));
 
         File file = fileChooser.showOpenDialog(window);
         if(file != null){

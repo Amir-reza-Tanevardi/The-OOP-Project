@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.InputMismatchException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -276,6 +277,29 @@ public class DBManagerTester {
         }
 
         return result;
+    }
+
+    public static int deleteRecordIfExist(Object obj) throws IllegalArgumentException, IllegalAccessException {
+        if (obj.getClass().isAnnotationPresent(DBTable.class)) {
+            String tableName = obj.getClass().getAnnotation(DBTable.class).tableName();
+            String query = "DELETE FROM " + tableName + " WHERE ";
+            for (Field f : getAllFields(obj.getClass())) {
+                f.setAccessible(true);
+                if (f.isAnnotationPresent(DBPrimaryKey.class)) {
+                    query += f.getAnnotation(DBField.class).name();
+                    query += "=";
+                    query += f.get(obj);
+                    break;
+                }
+            }
+            if (!query.contains("=")) {
+                throw new InputMismatchException("the class has no primary key!");
+            }
+            query += ";";
+            return (doUpdateQuery(query));
+        } else {
+            throw new InputMismatchException("the class does not Annotate DBTable!");
+        }
     }
 
 }

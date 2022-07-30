@@ -61,14 +61,32 @@ public class User implements Comparable<Post>{
     @DBField(name = "age")
     Integer Age = 0;
 
+    public void setImageString(String imageString) {
+        this.imageString = imageString;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
     @DBField(name = "phoneNumber")
     String PhoneNumber;
+
+    public String getImageString() {
+        return imageString;
+    }
+
+    public Image getImage() {
+        return image;
+    }
 
     @DBField(name = "email")
     String Email;
 
-    //@DBField(name = "image")
-    //Image image;
+    @DBField(name = "image")
+    String imageString;
+
+    Image image;
 
     @DBField(name = "Username")
     public String UserName;

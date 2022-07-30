@@ -9,7 +9,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.theprojectphase2.NewGroupController">
    <children>
       <TextField fx:id="group_name" layoutX="27.0" layoutY="70.0" prefHeight="26.0" prefWidth="174.0" AnchorPane.leftAnchor="27.0" />
@@ -24,7 +23,7 @@
             <Font size="17.0" />
          </font>
       </Label>
-      <ImageView fx:id="picture" fitHeight="150.0" fitWidth="174.0" layoutX="334.0" layoutY="69.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="picture" fitHeight="150.0" fitWidth="174.0" layoutX="334.0" layoutY="69.0" onMouseClicked="#ChoosePicture" pickOnBounds="true" preserveRatio="true" />
       <Label layoutX="334.0" layoutY="34.0" prefHeight="35.0" prefWidth="185.0" text="PICTURE OF THE GROUP">
          <font>
             <Font size="17.0" />

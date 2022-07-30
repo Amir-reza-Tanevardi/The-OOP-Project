@@ -70,8 +70,6 @@ public class ProfileGroupController {
         s = stage;
 
 
-
-
         loadData(group);
 
     }
@@ -86,6 +84,8 @@ public class ProfileGroupController {
         circle.setTranslateX(50);
         circle.setTranslateY(50);
         profile.setClip(circle);
+
+        profile.setImage(g.getImage());
         //GroupDescription_label.setText(g.getDescription());
 
         //DON'T FORGET TO IMPLEMENT THE PICTURES
@@ -105,7 +105,7 @@ public class ProfileGroupController {
         for(User u : group.getMembers())
             if(u.getUserName().contains(search)){
                 TextFlow textFlow = new TextFlow();
-                ImageView image = new ImageView("https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sunset_2007-1.jpg/640px-Sunset_2007-1.jpg");
+                ImageView image = new ImageView(u.getImage());
                 Circle circle = new Circle(20);
                 circle.setTranslateX(30);
                 circle.setTranslateY(30);

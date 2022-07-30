@@ -5,9 +5,9 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
-
 
 <AnchorPane prefHeight="555.0" prefWidth="743.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.theprojectphase2.SignUpController">
    <children>
@@ -37,5 +37,11 @@
       <Button layoutX="636.0" layoutY="512.0" mnemonicParsing="false" onAction="#DoSignUp" prefHeight="26.0" prefWidth="66.0" text="Sign Up" />
       <Label fx:id="msg" layoutX="47.0" layoutY="100.0" prefHeight="18.0" prefWidth="150.0" />
       <Button layoutX="46.0" layoutY="513.0" mnemonicParsing="false" onAction="#BackToLogIn" text="Back" />
+      <ImageView fx:id="picture" fitHeight="123.0" fitWidth="174.0" layoutX="474.0" layoutY="329.0" onMouseClicked="#ChoosePicture" pickOnBounds="true" preserveRatio="true" />
+      <Label layoutX="468.0" layoutY="287.0" prefHeight="31.0" prefWidth="134.0" text="Profile Picture">
+         <font>
+            <Font size="21.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

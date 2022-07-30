@@ -33,10 +33,27 @@ public class Post implements Comparable<Post>  {
 
       public ArrayList<Comment> comments = new ArrayList<>();
 
-      //@DBField(name = "image")
-      //public Image image;
+      @DBField(name = "image")
+      String imageString;
 
-      //public void setPublishDate(LocalDateTime publishDate) {
+      public Image image;
+
+      public void setImageString(String imageString) {
+            this.imageString = imageString;
+      }
+
+      public void setImage(Image image) {
+            this.image = image;
+      }
+
+      public String getImageString() {
+            return imageString;
+      }
+
+      public Image getImage() {
+            return image;
+      }
+//public void setPublishDate(LocalDateTime publishDate) {
             //this.publishDate = publishDate;
      // }
 

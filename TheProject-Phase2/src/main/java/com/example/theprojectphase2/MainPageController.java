@@ -119,15 +119,11 @@ public class MainPageController {
 
 
 
-
-        title_image.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                try {
-                    ViewGroupProfile(event);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        title_image.setOnMouseClicked(event -> {
+            try {
+                ViewGroupProfile(event);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
 
@@ -149,7 +145,7 @@ public class MainPageController {
         circle.setTranslateX(50);
         circle.setTranslateY(45);
         main_image.setClip(circle);
-        main_image.setImage(new Image("https://images.unsplash.com/flagged/photo-1593005510329-8a4035a7238f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"));
+        main_image.setImage(user.getImage());
 
 
         loadData(user);
@@ -207,17 +203,18 @@ public class MainPageController {
     private void loadData (User u) {
         //loads date when loging in
 
-        welcome_title.setText("Welcome " + u.UserName);
+        welcome_title.setText("Welcome " + u.UserName + "  "+ u.getID());
         group_vbox.getChildren().clear();
 
         if (search_field.getText().isEmpty()){
 
             for (Group g : u.getGroups()) {
+                System.out.println(g.getGroupName());
                 TextFlow textFlow = new TextFlow();
 
                 TextFlow container = new TextFlow();
 
-                ImageView profileImage = new ImageView("https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sunset_2007-1.jpg/640px-Sunset_2007-1.jpg");
+                ImageView profileImage = new ImageView(g.getImage());
                 Circle circle = new Circle(20);
                 circle.setTranslateX(30);
                 circle.setTranslateY(30);
@@ -297,7 +294,7 @@ public class MainPageController {
 
                     TextFlow container = new TextFlow();
 
-                    ImageView profileImage = new ImageView("https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sunset_2007-1.jpg/640px-Sunset_2007-1.jpg");
+                    ImageView profileImage = new ImageView(g.getImage());
                     Circle circle = new Circle(20);
                     circle.setTranslateX(30);
                     circle.setTranslateY(30);
@@ -394,6 +391,10 @@ public class MainPageController {
             }
 
         }
+
+        else if(the_list.getSelectionModel().getSelectedItem().getText().equals("Groups")){
+            loadData(user);
+        }
     }
 
 
@@ -408,6 +409,7 @@ public class MainPageController {
         for(Post post : Post.Posts)
             if(post.getOwner().getID() == u.getID())
                 newPosts.add(post);
+
 
         //Collections.sort(newPosts);
         //Because The Date is not enabled
@@ -467,9 +469,8 @@ public class MainPageController {
             if(post.getId() == Integer.parseInt(textFlow.getId()))
               {post.like(user);
                user.getLikedPosts().add(post);
-
-              textFlow.getChildren().set(0, new Text(post.getOwner().getUserName()+"\n"+post.getTitle() +"    "+"\n" +
-                      post.getContext() + "\n" + post.getLikers().size() + "  likes\n"));}
+               ViewMyPosts(post.getOwner());
+              }
 
 
         else if(event.getButton() == MouseButton.SECONDARY)
@@ -651,6 +652,7 @@ public class MainPageController {
                   if (g.getID() == Integer.parseInt(send_button.getId()) && !main_type.getText().isEmpty()) {
 
                       Post post = new Post("", main_type.getText(), user);
+                      post.setOwnerId(user.getID());
                       DBManagerTester.insert(post);
 
 
@@ -675,6 +677,7 @@ public class MainPageController {
                         if (u.getID() == Integer.parseInt(send_button.getId()) && !main_type.getText().isEmpty()) {
 
                             Post post = new Post("", main_type.getText(), user);
+                            post.setOwnerId(user.getID());
                             DBManagerTester.insert(post);
 
                             loadGroupMessage(post);
@@ -700,6 +703,7 @@ public class MainPageController {
                if(post.getId() == Integer.parseInt(send_button.getId())){
                    if(!main_type.getText().isEmpty()){
                        Comment comment = new Comment(main_type.getText(),user);
+                       comment.setOwnerId(user.getID());
 
                        DBManagerTester.insert(comment);
 
@@ -832,7 +836,7 @@ public class MainPageController {
 
 
     public void loadGroupMessage(Post post){
-        ImageView profileImage = new ImageView("https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sunset_2007-1.jpg/640px-Sunset_2007-1.jpg");
+        ImageView profileImage = new ImageView(post.getOwner().getImage());
         Circle circle = new Circle(20);
         circle.setTranslateX(30);
         circle.setTranslateY(30);
@@ -903,9 +907,10 @@ public class MainPageController {
     public void loadPost(Post post){
         TextFlow textFlow = new TextFlow();
         TextFlow container = new TextFlow();
+        VBox vBox = new VBox();
         Hyperlink hyperlink = new Hyperlink("Comments");
 
-        ImageView profileImage = new ImageView("https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sunset_2007-1.jpg/640px-Sunset_2007-1.jpg");
+        ImageView profileImage = new ImageView(post.getOwner().getImage());
         Circle circle = new Circle(20);
         circle.setTranslateX(30);
         circle.setTranslateY(30);
@@ -924,24 +929,41 @@ public class MainPageController {
             }
         });
 
-        Label text = new Label(post.getOwner().getUserName()+"\n"+post.getTitle() +"       "+"\n" +
+        //this part is for post images
+        ImageView view = null;
+        if(post.image != null) {
+            view = new ImageView(post.image);
+            view.setFitHeight(180);
+            view.setFitWidth(200);
+            view.setTranslateX(10);
+        }
+
+
+        Label text1 = new Label(post.getOwner().getUserName()+"\n"+post.getTitle() +"       "+"\n" +
                 post.getContext() + "\n" + post.getLikers().size() + "   likes\n");
 
 
         textFlow.setTranslateY(-profileImage.getFitHeight()/2);
-        textFlow.setTranslateX(10);
-        text.setTranslateX(10);
+        textFlow.setTranslateX(20);
+        text1.setTranslateX(10);
 
 
         container.getChildren().add(profileImage);
-        textFlow.getChildren().add(text);
+        vBox.getChildren().add(text1);
+
+
+        if(post.image != null) {
+            vBox.getChildren().add(view);
+            vBox.setPrefWidth(view.getFitWidth()+20);
+        }
+
         textFlow.setId(String.valueOf(post.getId()));
         //textFlow.setPrefWidth(text.getWidth()+100);
         textFlow.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
         textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
         textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE);
         textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
-        textFlow.getChildren().add(hyperlink);
+        vBox.getChildren().add(hyperlink);
 
         //hyperlink.setTranslateY(textFlow.getHeight());
         hyperlink.setId(String.valueOf(post.getId()));
@@ -956,23 +978,42 @@ public class MainPageController {
                 }
             }
         });
-        textFlow.setStyle("-fx-background-radius: 15;");
+
+
+
+        hyperlink.setTranslateX(10);
+
         container.setStyle("-fx-background-color: transparent");
+        textFlow.setStyle("-fx-background-color: transparent;");
 
         if(isDark.getValue())
-            textFlow.getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+            vBox.getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
 
         else
-            textFlow.setStyle("-fx-background-color: rgb(200,200,200)");
+            vBox.setStyle("-fx-background-radius: 15;" + "-fx-background-color: rgb(200,200,200);");
+
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue) {
+                vBox.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                vBox.setStyle("-fx-background-color: #373e43;" + "-fx-background-radius: 15;");
+            }
+
+            else {
+                vBox.getScene().getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                vBox.setStyle("-fx-background-radius: 15;" + "-fx-background-color: rgb(200,200,200);");
+            }
+        });
+
 
         VBox.setMargin(textFlow, new Insets(20, 0, 0, 10));
+        textFlow.getChildren().add(vBox);
         container.getChildren().add(textFlow);
         chat_box.getChildren().add(container);
     }
 
 
     public void loadComment(Comment comment){
-        ImageView profileImage = new ImageView("https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sunset_2007-1.jpg/640px-Sunset_2007-1.jpg");
+        ImageView profileImage = new ImageView(comment.getOwner().getImage());
         Circle circle = new Circle(20);
         circle.setTranslateX(30);
         circle.setTranslateY(30);
@@ -1046,7 +1087,7 @@ public class MainPageController {
 
         TextFlow container = new TextFlow();
 
-        ImageView profileImage = new ImageView("https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sunset_2007-1.jpg/640px-Sunset_2007-1.jpg");
+        ImageView profileImage = new ImageView(user1.getImage());
         Circle circle = new Circle(20);
         circle.setTranslateX(30);
         circle.setTranslateY(30);

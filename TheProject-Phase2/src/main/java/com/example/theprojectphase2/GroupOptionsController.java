@@ -1,5 +1,6 @@
 package com.example.theprojectphase2;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,8 +19,12 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 
 public class GroupOptionsController {
 
@@ -136,6 +141,16 @@ public class GroupOptionsController {
         File file = fileChooser.showOpenDialog(window);
         if(file != null){
             Image openedImage = new Image(file.toURI().toString());
+
+            group.setImage(openedImage);
+
+            BufferedImage bImage = SwingFXUtils.fromFXImage(openedImage, null);
+            ByteArrayOutputStream ss = new ByteArrayOutputStream();
+            ImageIO.write(bImage, "png", ss);
+            byte[] res  = ss.toByteArray();
+            ss.close();
+            String encodedFile = Base64.getEncoder().encodeToString(res);
+            group.setImageString(encodedFile);
 
 
             FXMLLoader loader = new FXMLLoader();

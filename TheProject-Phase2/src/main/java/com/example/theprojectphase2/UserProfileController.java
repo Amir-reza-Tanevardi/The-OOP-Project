@@ -44,6 +44,8 @@ public class UserProfileController {
     @FXML
     Button block_button;
 
+    @FXML
+    ImageView image;
 
 
 
@@ -70,6 +72,12 @@ public class UserProfileController {
         s = stage;
 
 
+        Circle circle = new Circle(50);
+        circle.setTranslateX(50);
+        circle.setTranslateY(50);
+        image.setClip(circle);
+        image.setImage(user.getImage());
+
 
         UserName_label.setText(user.getUserName());
         Bio_label.setText(user.getBio());
@@ -93,7 +101,7 @@ public class UserProfileController {
         for(User u : user.getFollowers())
             if(u.getUserName().contains(search)){
                 TextFlow textFlow = new TextFlow();
-                ImageView image = new ImageView("https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sunset_2007-1.jpg/640px-Sunset_2007-1.jpg");
+                ImageView image = new ImageView(u.getImage());
                 Circle circle = new Circle(20);
                 circle.setTranslateX(30);
                 circle.setTranslateY(30);
@@ -132,7 +140,7 @@ public class UserProfileController {
         for(User u : user.getFollowed())
             if(u.getUserName().contains(search)){
                 TextFlow textFlow = new TextFlow();
-                ImageView image = new ImageView("https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sunset_2007-1.jpg/640px-Sunset_2007-1.jpg");
+                ImageView image = new ImageView(u.getImage());
                 Circle circle = new Circle(20);
                 circle.setTranslateX(30);
                 circle.setTranslateY(30);

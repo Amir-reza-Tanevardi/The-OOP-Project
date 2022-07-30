@@ -9,13 +9,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Objects;
 
 public class Login {
@@ -70,94 +74,6 @@ public class Login {
 
     public static void initializeUser() throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
 
-        /*
-        try {
-
-            user = new User(set.getString("username"), set.getString("password"));
-            user.setID(set.getInt("id"));
-            user.setAge(set.getInt("age"));
-            user.setBio(set.getString("Bio"));
-            user.setEmail(set.getString("Email"));
-            user.setPhoneNumber(set.getString("Phonenumber"));
-            user.setGender(set.getBoolean("Gender"));
-            user.setPrivate(set.getBoolean("isPrivate"));
-            user.setNormal(set.getBoolean("isNormal"));
-
-
-
-
-            //Initialize all accounts
-            ResultSet allSet = DBManager.getResultSet("SELECT * FROM users;");
-
-            while(allSet.next()){
-                User user1 = new User(allSet.getString(2), allSet.getString(3));
-                user1.setID(allSet.getInt("id"));
-                user1.setAge(allSet.getInt("age"));
-                user1.setBio(allSet.getString("Bio"));
-                user1.setEmail(allSet.getString("Email"));
-                user1.setPhoneNumber(allSet.getString("Phonenumber"));
-                user1.setGender(allSet.getBoolean("Gender"));
-                user1.setPrivate(allSet.getBoolean("isPrivate"));
-                user1.setNormal(allSet.getBoolean("isNormal"));
-
-
-                if(!User.Users.contains(user1))
-                    User.Users.add(user1);
-            }
-
-            //Initialize All Groups
-            ResultSet groupSet = DBManager.getResultSet("SELECT * FROM `groups`;");
-            while(groupSet.next()){
-                Group group = DBManager.getObject("`groups`",groupSet.getInt("id"),Group.class);
-                Group g = DBManager.getObject("`groups`",groupSet.getInt("id"),Group.class);
-                group.setID(groupSet.getInt("id"));
-
-                group.getMembers().clear();
-
-
-                //System.out.println(group.getMembers().get(0).getUserName() + "  " + group.getMembers().get(1).getUserName());
-
-                for (User user1 : g.getMembers()){
-                    for(User user2 : Users)
-                     if(user2.getID() == user1.getID()) {
-                         user2.getGroups().add(group);
-                         group.getMembers().add(user2);
-                     }
-                }
-
-
-                Group.Groups.add(group);
-
-            }
-
-            ///
-
-
-            ResultSet followersSet = DBManager.getResultSet("SELECT * FROM follow WHERE followed_id = " + user.getID());
-            //followersSet.next();
-            while (followersSet.next())
-            {
-                for(User u : User.Users)
-                    if(u.getID()==followersSet.getInt(1))
-                    {user.getFollowers().add(u); break;}
-            }
-
-            ResultSet followingSet = DBManager.getResultSet("SELECT * FROM follow WHERE follower_id = " + user.getID());
-
-            while (followingSet.next())
-            {
-                for(User u : User.Users)
-                    if(u.getID()==followingSet.getInt(2))
-                    {user.getFollowed().add(u); break;}
-            }
-
-
-        }
-        catch (SQLException e){
-            e.printStackTrace();
-
-        }
-        */
 
 
         User.Users = DBManagerTester.doSelectQuery("SELECT * FROM users;", User.class);
@@ -176,8 +92,9 @@ public class Login {
     public static void LoadAll(){
         //load All Posts
         for(Post post : Post.Posts){
+
             for(User user : User.Users)
-                if(Objects.equals(user.getID(), post.getOwnerId()))
+                if(user.getID() == post.getOwnerId())
                     post.setOwner(user);
 
 
@@ -190,6 +107,12 @@ public class Login {
                 for(Comment comment : Comment.Comments)
                     if(comment.getId() == i)
                         post.getComments().add(comment);
+
+            if(post.getImageString() != null){
+            String base64Image = post.getImageString().split(",")[0];
+            InputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(base64Image));
+            post.setImage(new Image(stream));
+            }
         }
 
         //load All Comments
@@ -219,9 +142,15 @@ public class Login {
                 for(Post post : Post.Posts)
                     if(post.getId() == i)
                         group.getPosts().add(post);
+
+            if(group.getImageString() != null){
+                String base64Image = group.getImageString().split(",")[0];
+                InputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(base64Image));
+                group.setImage(new Image(stream));
+            }
         }
 
-
+        //load All Users
         for(User user : User.Users)
         {
             for(Double i : user.getPostsId())
@@ -259,6 +188,12 @@ public class Login {
                 for(User user1 : User.Users)
                     if(user1.getID() == i)
                         user.getFollowed().add(user1);
+
+            if(user.getImageString() != null){
+                String base64Image = user.getImageString().split(",")[0];
+                InputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(base64Image));
+                user.setImage(new Image(stream));
+            }
         }
     }
 
@@ -280,7 +215,6 @@ public class Login {
 
             //update All Posts
             for(Post post : Post.Posts){
-              post.setOwnerId(post.getOwner().getID());
 
 
                 for(User user1 : post.getLikers())
@@ -370,9 +304,15 @@ public class Login {
 
                 for(Group group : user1.getGroups())
                     {
+                        System.out.println("FUCKING HERE   "+ group.getGroupName());
                         //post.getLikersId().retainAll(user.getID());
-                        if(!user1.getGroupsId().contains((double)group.getID()))
+                        if(!user1.getGroupsId().contains((double)group.getID())){
                             user1.getGroupsId().add((double)group.getID());
+                            System.out.println(group.getID());
+                        }
+
+                        for(Double ii : user1.getGroupsId())
+                            System.out.println(ii);
                     }
 
                 for(User u : user1.getFollowers())

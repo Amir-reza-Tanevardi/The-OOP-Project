@@ -76,8 +76,8 @@
          <left>
             <VBox fx:id="setting" minWidth="-Infinity" prefHeight="608.0" prefWidth="171.0">
                <children>
-                  <ImageView fx:id="main_image" fitHeight="137.0" fitWidth="127.0" pickOnBounds="true" preserveRatio="true" />
-                  <Label fx:id="main_label" prefHeight="74.0" prefWidth="171.0" />
+                  <ImageView fx:id="main_image" fitHeight="191.0" fitWidth="159.0" pickOnBounds="true" preserveRatio="true" />
+                  <Label fx:id="main_label" prefHeight="74.0" prefWidth="162.0" translateX="10.0" />
                   <Button fx:id="myposts_button" alignment="TOP_LEFT" mnemonicParsing="false" prefHeight="26.0" prefWidth="176.0" style="-fx-background-color: transparent;" text="MY POSTS">
                      <graphic>
                         <ImageView fitHeight="28.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">

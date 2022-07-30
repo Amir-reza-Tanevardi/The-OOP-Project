@@ -1,5 +1,6 @@
 package com.example.theprojectphase2;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,12 +11,23 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Base64;
+import java.util.Random;
 import java.util.Scanner;
 
 public class SignUpController {
@@ -40,6 +52,9 @@ public class SignUpController {
 
     @FXML
     TextField bio_text;
+
+    @FXML
+    ImageView picture;
 
     @FXML
     ChoiceBox<String> gender_choose;
@@ -78,7 +93,33 @@ public class SignUpController {
         String s2 = password_text.getText();
         String s2r = password2_text.getText();
 
-        //ResultSet set = DBManager.getResultSet("SELECT * FROM `users` WHERE username = '"+s1+"';");
+        User user = new User(s1, s2);
+
+        if(picture.getImage() == null) {
+            Random random = new Random();
+            int r = random.nextInt(4);
+
+            if (r == 0) {
+                user.setImage(new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\blue-background.png"));
+            } else if (r == 1) {
+                user.setImage(new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\green-background.png"));
+            } else if (r == 2) {
+                user.setImage(new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\red-background.png"));
+            } else {
+                user.setImage(new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\orange-background.png"));
+            }
+        }
+
+        else
+            user.setImage(picture.getImage());
+
+        BufferedImage bImage = SwingFXUtils.fromFXImage(user.getImage(), null);
+        ByteArrayOutputStream s = new ByteArrayOutputStream();
+        ImageIO.write(bImage, "png", s);
+        byte[] res  = s.toByteArray();
+        s.close();
+        String encodedFile = Base64.getEncoder().encodeToString(res);
+        user.setImageString(encodedFile);
 
         if(username_text.getText().isEmpty())
             msg.setText("Please Enter a UserName");
@@ -98,7 +139,7 @@ public class SignUpController {
                     msg.setText("The Passwords Are Not The Same.");
 
                 else{
-                    User user = new User(s1, s2);
+
 
                     user.setEmail(email_text.getText());
 
@@ -142,6 +183,24 @@ public class SignUpController {
 
         MainStage.setScene(scene);
         MainStage.show();
+    }
+
+
+    public void ChoosePicture(MouseEvent event){
+        Window window = ((Node) (event.getSource())).getScene().getWindow();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose Image");
+
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image File", "*.png", "*.jpg", "*.gif"));
+
+        File file = fileChooser.showOpenDialog(window);
+        if(file != null){
+            Image openedImage = new Image(file.toURI().toString());
+            picture.setImage(openedImage);
+        }
+
+        event.consume();
     }
 
 

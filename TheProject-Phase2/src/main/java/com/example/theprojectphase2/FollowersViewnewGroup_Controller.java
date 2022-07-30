@@ -68,7 +68,7 @@ public class FollowersViewnewGroup_Controller {
 
         TextFlow container = new TextFlow();
 
-        ImageView profileImage = new ImageView("https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sunset_2007-1.jpg/640px-Sunset_2007-1.jpg");
+        ImageView profileImage = new ImageView(user1.getImage());
         Circle circle = new Circle(20);
         circle.setTranslateX(30);
         circle.setTranslateY(30);

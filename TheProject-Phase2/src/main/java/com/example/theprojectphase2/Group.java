@@ -34,13 +34,31 @@ public class Group  {
     @DBField(name = "GroupMembers")
     ArrayList<Double> MembersId = new ArrayList<>();
 
+    public void setImageString(String imageString) {
+        this.imageString = imageString;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+    public String getImageString() {
+        return imageString;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
     ArrayList<User> Members = new ArrayList<>();
 
     @DBField(name = "NumberOfUsers")
     Integer NumberOfUsers = 0;
 
-    //@DBField(name = "image")
-    //Image image;
+    @DBField(name = "image")
+    String imageString;
+
+    Image image;
 
     @DBField(name = "GroupPosts")
     ArrayList<Double> PostsId = new ArrayList<>();
