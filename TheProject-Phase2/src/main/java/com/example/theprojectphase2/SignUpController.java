@@ -78,7 +78,7 @@ public class SignUpController {
         String s2 = password_text.getText();
         String s2r = password2_text.getText();
 
-        ResultSet set = DBManager.getResultSet("SELECT * fROM USERS WHERE username = '"+s1+"';");
+        //ResultSet set = DBManager.getResultSet("SELECT * FROM `users` WHERE username = '"+s1+"';");
 
         if(username_text.getText().isEmpty())
             msg.setText("Please Enter a UserName");
@@ -90,10 +90,10 @@ public class SignUpController {
             msg.setText("Please Repeat your Password");
 
        else {
-            if (set.isBeforeFirst())
-                System.out.println("This username is already in use.");
+            //if (set.isBeforeFirst())
+                //System.out.println("This username is already in use.");
 
-            else {
+            //else {
                 if(!password_text.getText().equals(password2_text.getText()))
                     msg.setText("The Passwords Are Not The Same.");
 
@@ -108,31 +108,28 @@ public class SignUpController {
 
                     user.setBio(bio_text.getText());
 
-                    if (gender_choose.getValue().equals("male"))
-                        user.setGender(true);
+                    user.setGender(true);
 
-                    else if (gender_choose.getValue().equals("female"))
-                        user.setGender(false);
+                    user.setNormal(true);
 
-                    if (privacy_choose.getValue().equals("private"))
-                        user.setPrivate(true);
+                    //if (gender_choose.getValue().equals("male"))
+                        //user.setGender(true);
 
-                    else if (gender_choose.getValue().equals("public"))
-                        user.setPrivate(false);
+                    //else if (gender_choose.getValue().equals("female"))
+                        //user.setGender(false);
+
+                   // if (privacy_choose.getValue().equals("private"))
+                        //user.setPrivate(true);
+
+                    // if (gender_choose.getValue().equals("public"))
+                        //user.setPrivate(false);
 
                     User.Users.add(user);
 
-                    DBManager.UpdateQuery("INSERT INTO users (username , password , Email ," +
-                            "Phonenumber ," +
-                            "Age ," +
-                            "Bio ," +
-                            "Gender ," +
-                            "isPrivate ," +
-                            "isNormal) VALUES ('" + user.getUserName() + "' , '" + user.getPassWord() + "' , '" + user.getEmail() + "' , '" + user.getPhoneNumber() + "' , '" +
-                            user.getAge() + "' , '" + user.getGender() + "' , '" + user.getPrivacy() + "' , '" + "FALSE" + ");");
+                    DBManagerTester.insert(user);
                 }
 
-            }
+            //}
         }
 
         FXMLLoader loader = new FXMLLoader();

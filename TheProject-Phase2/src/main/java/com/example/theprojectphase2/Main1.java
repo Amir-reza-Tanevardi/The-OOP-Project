@@ -25,7 +25,7 @@ public class Main1 {
                 }
 
                 else if(s.contains("2")){
-                   User.SignUp(myConsole , dataBase);
+                   //User.SignUp(myConsole , dataBase);
                 }
 
 

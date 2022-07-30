@@ -1,47 +1,88 @@
 package com.example.theprojectphase2;
 
 
+import javafx.scene.image.Image;
+
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 //import oop.prj.model.DB.DBManager;
 //import oop.prj.model.DB.Saveable;
 
-public class Post implements Comparable<Post> ,Saveable{
-      private ArrayList<User> likers = new ArrayList<>();
-      private Date publishDate;
-      private ArrayList<Comment> comments = new ArrayList<>();
+@DBTable(tableName = "posts")
+public class Post implements Comparable<Post>  {
+
+      @DBPrimaryKey
+      @DBAutoIncrement
+      @DBField(name = "Id")
+      private Integer id = 0;
+
+
+
+      @DBField(name = "PostLikedBy")
+      public ArrayList<Double> likersId = new ArrayList<>();
+
+      public ArrayList<User> likers = new ArrayList<>();
+
+      //@DBField(name = "publishDate")
+      //private LocalDateTime publishDate;
+
+      @DBField(name = "comments")
+      public   ArrayList<Double> commentsId = new ArrayList<>();
+
+      public ArrayList<Comment> comments = new ArrayList<>();
+
+      //@DBField(name = "image")
       //public Image image;
+
+      //public void setPublishDate(LocalDateTime publishDate) {
+            //this.publishDate = publishDate;
+     // }
+
+      @DBField(name = "context")
       private String context = "";
 
-      public void setPublishDate(Date publishDate) {
-            this.publishDate = publishDate;
-      }
+      //public LocalDateTime getPublishDate() {
+            //return publishDate;
+      //}
 
+      //@DBField(name = "publishDate")
+      //public LocalDateTime publishDate;
+
+      //public void setPublishDate(LocalDateTime publishDate) {
+      //this.publishDate = publishDate;
+      //}
+
+      @DBField(name = "title")
       private String title = "";
+
+      @DBField(name = "owner")
+      Integer OwnerId = 0;
+
       User owner;
 
       public ArrayList<User> getLikers() {
             return likers;
       }
 
-      public static transient ArrayList<Post> Posts = new ArrayList<>();
+
+      public static ArrayList<Post> Posts = new ArrayList<>();
+
 
       //public void setImage(Image image) {
-            //this.image = image;
+      //this.image = image;
       //}
 
       //public Image getImage() {
-        //    return image;
+      //    return image;
       //}
 
       public void setId(int id) {
             this.id = id;
       }
 
-      private int id;
 
-      private static final String TABLE_NAME = "posts";
 
       @Override
       public boolean equals(Object other) {
@@ -53,7 +94,7 @@ public class Post implements Comparable<Post> ,Saveable{
             }
 
             Post otherPost = (Post) other;
-            if(getID() == otherPost.getID()){
+            if (getId() == otherPost.getId()) {
                   return true;
             }
             return false;
@@ -64,11 +105,14 @@ public class Post implements Comparable<Post> ,Saveable{
             this.title = title;
             this.context = context;
             this.owner = owner;
-            if(Post.Posts.isEmpty())
-                  this.id =0;
+            if (Post.Posts.isEmpty())
+                  this.id = 0;
             else
-                  this.id = Post.Posts.get(Post.Posts.size()-1).getID()+1;
+                  this.id = Post.Posts.get(Post.Posts.size() - 1).getId() + 1;
 
+      }
+
+      public Post() {
       }
 
       public static Post makePost(String title, String context, User owner) {
@@ -79,9 +123,6 @@ public class Post implements Comparable<Post> ,Saveable{
             return instance;
       }
 
-      public int getID() {
-            return id;
-      }
 
       public void like(User liker) {
             // TODO check like conditions
@@ -102,11 +143,13 @@ public class Post implements Comparable<Post> ,Saveable{
             return owner;
       }
 
-      public Date getPublishDate() {
-            return publishDate;
-      }
+      //public LocalDateTime getPublishDate() {
+      //return publishDate;
+      //}
 
-      public ArrayList<Comment> getComments() {return comments;}
+      public ArrayList<Comment> getComments() {
+            return comments;
+      }
 
       public void setTitle(String newTitle) {
             title = newTitle;
@@ -118,18 +161,56 @@ public class Post implements Comparable<Post> ,Saveable{
 
       public void comment(Comment comment) {
 
-                  comments.add(comment);
+            comments.add(comment);
 
       }
 
       @Override
       public int compareTo(Post o) {
-            return publishDate.compareTo(o.getPublishDate());
+            return 1;// return publishDate.compareTo(o.getPublishDate());
       }
 
+      public int getId() {
+            return id;
+      }
 
-      @Override
-      public String getTableName() {
-            return TABLE_NAME;
+      public ArrayList<Double> getLikersId() {
+            return likersId;
+      }
+
+      public void setId(Integer id) {
+            this.id = id;
+      }
+
+      public void setLikersId(ArrayList<Double> likersId) {
+            this.likersId = likersId;
+      }
+
+      public void setLikers(ArrayList<User> likers) {
+            this.likers = likers;
+      }
+
+      public void setCommentsId(ArrayList<Double> commentsId) {
+            this.commentsId = commentsId;
+      }
+
+      public void setComments(ArrayList<Comment> comments) {
+            this.comments = comments;
+      }
+
+      public void setOwnerId(Integer ownerId) {
+            OwnerId = ownerId;
+      }
+
+      public void setOwner(User owner) {
+            this.owner = owner;
+      }
+
+      public ArrayList<Double> getCommentsId() {
+            return commentsId;
+      }
+
+      public Integer getOwnerId() {
+            return OwnerId;
       }
 }

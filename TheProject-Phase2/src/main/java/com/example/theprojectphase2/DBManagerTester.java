@@ -1,5 +1,6 @@
 package com.example.theprojectphase2;
 
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -9,9 +10,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 
 public class DBManagerTester {
 
@@ -21,6 +24,7 @@ public class DBManagerTester {
     private static final String DB_PASS = "400100898";
 
     private static Connection conn = null;
+
 
     public static void insert(Object object) {
         createTableIfNotExist(object);
@@ -34,11 +38,12 @@ public class DBManagerTester {
                 }
             }
 
-            String query = "INSERT INTO " + tableName;
+            String query = "INSERT INTO " + tableName+" ";
             String sub_query_record_fields = "";
             String sub_query_record_values = "";
 
-            for (Field f : object.getClass().getDeclaredFields()) {
+            for (Field f : getAllFields(object.getClass())) {
+                f.setAccessible(true);
                 if (f.isAnnotationPresent(DBField.class)) {
                     DBField anno = f.getAnnotation(DBField.class);
                     sub_query_record_fields += anno.name() + ",";
@@ -53,7 +58,7 @@ public class DBManagerTester {
                             while (res.next()) {
                                 index = res.getInt("max(" + f.getAnnotation(DBField.class).name() + ")");
                             }
-                            f.set(object, index+1);
+                            f.set(object, index + 1);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -63,9 +68,9 @@ public class DBManagerTester {
                         if (needJson(r)) {
                             GsonBuilder gsonBuilder = new GsonBuilder();
                             Gson gson = gsonBuilder.create();
-                            sub_query_record_values += "\"" + gson.toJson(r) + "\"";
+                            sub_query_record_values += "\'" + gson.toJson(r) + "\'";
                         } else {
-                            sub_query_record_values += "\"" + r + "\"";
+                            sub_query_record_values += "\'" + r + "\'";
                         }
                         sub_query_record_values += ",";
 
@@ -82,18 +87,7 @@ public class DBManagerTester {
             createTableIfNotExist(object);
             doUpdateQuery(query);
 
-            //ArrayList<DBTester> test;
-            //try {
-                //test = doSelectQuery("SELECT * from " + tableName, DBTester.class);
-                //test.add(null);
-            //} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                    //| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                //// TODO Auto-generated catch block
-                //e.printStackTrace();
-            //}
-
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(
                     "The class " + object.getClass().getSimpleName()
                             + " most annotate DBTable and marks its fields with DBField Annotation\nFATAL ERROR\nexit program...\n");
@@ -107,11 +101,14 @@ public class DBManagerTester {
             return st.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
+            e.getCause();
         }
         return -1;
     }
 
-    private static <E> ArrayList<E> doSelectQuery(String query, Class<E> sample) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+    public static <E> ArrayList<E> doSelectQuery(String query, Class<E> sample)
+            throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+            NoSuchMethodException, SecurityException {
         getConnection();
         ArrayList<E> finalResult = new ArrayList<>();
         try {
@@ -119,14 +116,17 @@ public class DBManagerTester {
             ResultSet result = st.executeQuery(query);
             while (result.next()) {
                 E e = sample.getDeclaredConstructor().newInstance();
-                for (Field field : sample.getDeclaredFields()) {
+                for (Field field : getAllFields(sample)) {
+
+                        field.setAccessible(true);
+
                     if (field.isAnnotationPresent(DBField.class)) {
                         DBField mf = field.getAnnotation(DBField.class);
                         try {
                             Object fieldValue = result.getObject(mf.name());
                             switch (field.getType().getSimpleName()) {
                                 case "Integer":
-                                    field.set(e, (Integer) fieldValue);
+                                    field.set(e,  (Integer)fieldValue);
                                     break;
                                 case "Double":
                                     field.set(e, (Double) fieldValue);
@@ -149,7 +149,6 @@ public class DBManagerTester {
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
-                        
                     }
                 }
                 finalResult.add(e);
@@ -188,7 +187,7 @@ public class DBManagerTester {
                     tableName = annoTable.tableName();
                 }
             }
-            for (Field f : obj.getClass().getDeclaredFields()) {
+            for (Field f : getAllFields(obj.getClass())) {
                 if (f.isAnnotationPresent(DBField.class)) {
                     DBField DBfield = f.getAnnotation(DBField.class);
                     fieldsNames += DBfield.name() + " ";
@@ -223,7 +222,60 @@ public class DBManagerTester {
         }
     }
 
-    private static void update(Object obj){
-
+    public static void update(Object obj) {
+        if (obj.getClass().isAnnotationPresent(DBTable.class)) {
+            DBTable tableAnno = obj.getClass().getAnnotation(DBTable.class);
+            String query = "UPDATE " + tableAnno.tableName() + " SET ";
+            String primaryKeyColumnName = "";
+            Integer primaryKeyColumnValue = 0;
+            try {
+                for (Field f : getAllFields(obj.getClass())) {
+                    f.setAccessible(true);
+                    if (f.isAnnotationPresent(DBField.class)) {
+                        if (f.isAnnotationPresent(DBPrimaryKey.class)) {
+                            primaryKeyColumnName = f.getAnnotation(DBField.class).name();
+                            primaryKeyColumnValue = (Integer) f.get(obj);
+                        }
+                        query += f.getAnnotation(DBField.class).name();
+                        query += "=";
+                        Object val = f.get(obj);
+                        switch (val.getClass().getSimpleName()) {
+                            case "Integer":
+                            case "String":
+                            case "Double":
+                            case "Float":
+                                query += "\'" + val + "\'";
+                                break;
+                            default:
+                                GsonBuilder builder = new GsonBuilder();
+                                Gson gson = builder.create();
+                                query += "\'" + gson.toJson(f.get(obj)) + "\'";
+                                break;
+                        }
+                        query += ",";
+                    }
+                }
+                query = query.replaceAll(",$", "");
+                query += " WHERE " + primaryKeyColumnName + "=" + primaryKeyColumnValue + ";";
+                doUpdateQuery(query);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
+
+    private static ArrayList<Field> getAllFields(Class<?> inputClass) {
+        ArrayList<Field> result = new ArrayList<>();
+
+        result.addAll(Arrays.asList(inputClass.getDeclaredFields()));
+        Class<?> temp = inputClass.getSuperclass();
+
+        while (temp != null) {
+            result.addAll(Arrays.asList(temp.getDeclaredFields()));
+            temp = temp.getSuperclass();
+        }
+
+        return result;
+    }
+
 }

@@ -1,10 +1,55 @@
 package com.example.theprojectphase2;
 
+import javafx.fxml.FXML;
+import javafx.scene.image.Image;
+
+import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Group implements Comparable<Group> ,Saveable {
+@DBTable(tableName = "projectgroups")
+public class Group  {
+
+    @DBPrimaryKey
+    @DBAutoIncrement
+    @DBField(name = "Id")
+    Integer ID = 0;
+
+    public static ArrayList<Group> Groups = new ArrayList<>();
+
+    @DBField(name = "GroupName")
+    String GroupName;
+
+    @DBField(name = "GroupOwner")
+    Integer OwnerId = 0;
+
+    User Owner;
+
+    @DBField(name = "GroupManagers")
+    ArrayList<Double> ManagersId = new ArrayList<>();
+
+    ArrayList<User> Managers = new ArrayList<>();
+
+    @DBField(name = "GroupMembers")
+    ArrayList<Double> MembersId = new ArrayList<>();
+
+    ArrayList<User> Members = new ArrayList<>();
+
+    @DBField(name = "NumberOfUsers")
+    Integer NumberOfUsers = 0;
+
+    //@DBField(name = "image")
+    //Image image;
+
+    @DBField(name = "GroupPosts")
+    ArrayList<Double> PostsId = new ArrayList<>();
+
+    ArrayList<Post> Posts = new ArrayList<>();
+
+    Group(String groupName) {this.GroupName=groupName;}
+    Group(){}
+
 
     public String getGroupName() {return GroupName;}
 
@@ -56,23 +101,6 @@ public class Group implements Comparable<Group> ,Saveable {
         return Posts;
     }
 
-    public transient static ArrayList<Group> Groups = new ArrayList<>();
-
-
-
-
-    int ID;
-    String GroupName;
-    User Owner;
-    ArrayList<User> Managers = new ArrayList<>();
-    ArrayList<User> Members = new ArrayList<>();
-    int NumberOfUsers;
-    ArrayList<Post> Posts = new ArrayList<>();
-
-    Group(String groupName) {this.GroupName=groupName;}
-
-    private static final String TABLE_NAME = "groups";
-
 
     public static void CreateGroup(Scanner scanner , User user) throws SQLException {
         System.out.println("Choose Your group Name");
@@ -95,7 +123,6 @@ public class Group implements Comparable<Group> ,Saveable {
             user1.getGroups().add(group);
         }
 
-         DBManager.save(group);
     }
 
     public static void viewGroups(Scanner scanner ,User user) throws SQLException{
@@ -134,10 +161,7 @@ public class Group implements Comparable<Group> ,Saveable {
 
     int getID() {return ID;}
 
-    @Override
-    public String getTableName() {
-        return TABLE_NAME;
-    }
+
 
     @Override
     public boolean equals(Object other) {
@@ -152,11 +176,43 @@ public class Group implements Comparable<Group> ,Saveable {
         return false;
     }
 
+    public void setID(Integer ID) {
+        this.ID = ID;
+    }
 
-    @Override
-    public int compareTo(Group o) {
-        if(this.ID > o.ID)
-            return 1;
-        else return 0;
+    public void setOwnerId(Integer ownerId) {
+        OwnerId = ownerId;
+    }
+
+    public void setManagersId(ArrayList<Double> managersId) {
+        ManagersId = managersId;
+    }
+
+    public void setMembersId(ArrayList<Double> membersId) {
+        MembersId = membersId;
+    }
+
+    public void setNumberOfUsers(Integer numberOfUsers) {
+        NumberOfUsers = numberOfUsers;
+    }
+
+    public void setPostsId(ArrayList<Double> postsId) {
+        PostsId = postsId;
+    }
+
+    public Integer getOwnerId() {
+        return OwnerId;
+    }
+
+    public ArrayList<Double> getManagersId() {
+        return ManagersId;
+    }
+
+    public ArrayList<Double> getMembersId() {
+        return MembersId;
+    }
+
+    public ArrayList<Double> getPostsId() {
+        return PostsId;
     }
 }

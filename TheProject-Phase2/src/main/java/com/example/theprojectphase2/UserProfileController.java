@@ -197,11 +197,9 @@ public class UserProfileController {
 
     public void follow(ActionEvent event) {
         if(!user.getFollowers().contains(us)) {
-            //user.getFollowers().add(us);
-            //us.getFollowed().add(user);
+            user.getFollowers().add(us);
+            us.getFollowed().add(user);
 
-            us.getFollowers().add(user);
-            user.getFollowed().add(us);
 
             SearchUsers();
             follow_button.setText("Unfollow");
@@ -210,6 +208,7 @@ public class UserProfileController {
         else {
             user.getFollowers().remove(us);
             us.getFollowed().remove(user);
+
             SearchUsers();
             follow_button.setText("Follow");
         }

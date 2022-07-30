@@ -31,7 +31,7 @@ public class MessageOptions_Controller {
            textFlow = t;
 
            for(Post pp : Post.Posts)
-               if(pp.getID() == p.getID())
+               if(pp.getId() == p.getId())
                    post = pp;
 
            for(User uu : User.Users)
@@ -70,6 +70,8 @@ public class MessageOptions_Controller {
                 us.getPosts().remove(post);
                 VBox vBox = (VBox)(textFlow.getParent().getParent());
                 vBox.getChildren().remove(textFlow.getParent());
+
+
             }
 
             else{
@@ -78,14 +80,12 @@ public class MessageOptions_Controller {
                         group.getPosts().remove(post);
                         VBox vBox = (VBox)(textFlow.getParent().getParent());
                         vBox.getChildren().remove(textFlow.getParent());
+
+
                     }
             }
         }
 
-        else{
-            VBox vBox = (VBox)(textFlow.getParent().getParent());
-            vBox.getChildren().remove(textFlow.getParent());
-        }
 
         Popup popup = (Popup) ((Node)event1.getSource()).getScene().getWindow();
         popup.hide();
@@ -115,6 +115,7 @@ public class MessageOptions_Controller {
         //textArea.setEditable(true);
         confirm.setOnAction(event -> {
             label.setText(type.getText());
+
             type.clear();
             title.getChildren().remove(confirm);
             title.getChildren().remove(decline);

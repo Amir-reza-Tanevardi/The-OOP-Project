@@ -102,7 +102,6 @@ public class MainPageController {
     SimpleBooleanProperty isDark;
 
     User user; //The user that's logged in his/her account
-    Post pp;
 
 
 
@@ -132,11 +131,6 @@ public class MainPageController {
             }
         });
 
-        //Will be deleted later
-        pp = new Post("","HELLO",User.Users.get(0));
-        Post.Posts.add(pp);
-        user.getGroups().get(2).getPosts().add(pp);
-        //will be deleted later
 
         main_label.setText(user.getUserName()+"\n"+user.getFollowers().size()+" Followers"+"\n"+user.getFollowed().size()+" Followings");
         //main_image.setImage(user.image);
@@ -156,6 +150,7 @@ public class MainPageController {
         circle.setTranslateY(45);
         main_image.setClip(circle);
         main_image.setImage(new Image("https://images.unsplash.com/flagged/photo-1593005510329-8a4035a7238f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"));
+
 
         loadData(user);
 
@@ -342,8 +337,6 @@ public class MainPageController {
                     container.setOnMouseClicked(this::ChooseGroupChat);
 
 
-                    container.setStyle("-fx-background-color: rgb(255,255,255);");
-
                     container.setPrefHeight(60);
                     container.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
                     container.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
@@ -384,10 +377,10 @@ public class MainPageController {
             //Then shows the newest ones first
             ArrayList<Post> newPosts = new ArrayList<>();
 
-            for(User u : user.getFollowed())
-                newPosts.addAll(u.getPosts());
+            for(User u : user.getFollowed()){
+                newPosts.addAll(u.getPosts());}
 
-            newPosts.add(pp);
+
             Collections.sort(newPosts);
             //not sure if it sorted it ascending or descending. if didn't get
             //wanted results, just uncomment the line below
@@ -410,7 +403,11 @@ public class MainPageController {
         title.setManaged(false);
 
 
-        ArrayList<Post> newPosts = new ArrayList<>(u.getPosts());
+        ArrayList<Post> newPosts = new ArrayList<>();
+
+        for(Post post : Post.Posts)
+            if(post.getOwner().getID() == u.getID())
+                newPosts.add(post);
 
         //Collections.sort(newPosts);
         //Because The Date is not enabled
@@ -434,13 +431,23 @@ public class MainPageController {
         chat_box.getChildren().clear();
         Hyperlink hyperlink = (Hyperlink) event.getSource();
 
+        title.setVisible(true);
+        title.setManaged(true);
+        title.setDisable(false);
+        Button button = new Button("back");
+        title.getChildren().add(button);
+        AnchorPane.setLeftAnchor(button,20.0);
+        AnchorPane.setTopAnchor(button,10.0);
+
+        button.setOnMouseClicked(this::setChat);
+
         main_type.setDisable(false);
         main_type.clear();
         main_type.setPromptText("Add Comment");
         send_button.setDisable(false);
         send_button.setId(String.valueOf(hyperlink.getId()));
         for(Post post : Post.Posts)
-            if(post.getID() == Integer.parseInt(hyperlink.getId())){
+            if(post.getId() == Integer.parseInt(hyperlink.getId())){
                 for(Comment comment : post.getComments()){
                     loadComment(comment);
                 }
@@ -457,10 +464,10 @@ public class MainPageController {
 
         if(event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY)
          for(Post post : Post.Posts)
-            if(post.getID() == Integer.parseInt(textFlow.getId()))
-              {
-                  System.out.println("ddooo");
-                  post.like(user);
+            if(post.getId() == Integer.parseInt(textFlow.getId()))
+              {post.like(user);
+               user.getLikedPosts().add(post);
+
               textFlow.getChildren().set(0, new Text(post.getOwner().getUserName()+"\n"+post.getTitle() +"    "+"\n" +
                       post.getContext() + "\n" + post.getLikers().size() + "  likes\n"));}
 
@@ -487,8 +494,9 @@ public class MainPageController {
 
         if(event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY)
             for(Comment comment : Comment.Comments)
-                if(comment.getID() == Integer.parseInt(textFlow.getId()))
+                if(comment.getId() == Integer.parseInt(textFlow.getId()))
                    {comment.like(user);
+
                    textFlow.getChildren().set(0, new Text(comment.getOwner().getUserName() +"       "+"\n" +
                            comment.getContext() +"\n" + comment.getLikers().size() + "  likes"));
                    }
@@ -643,11 +651,13 @@ public class MainPageController {
                   if (g.getID() == Integer.parseInt(send_button.getId()) && !main_type.getText().isEmpty()) {
 
                       Post post = new Post("", main_type.getText(), user);
+                      DBManagerTester.insert(post);
 
 
                       loadGroupMessage(post);
                       g.getPosts().add(post);
                       Post.Posts.add(post);
+
 
                       group_vbox.getChildren().clear();
                       loadData(user);
@@ -665,6 +675,7 @@ public class MainPageController {
                         if (u.getID() == Integer.parseInt(send_button.getId()) && !main_type.getText().isEmpty()) {
 
                             Post post = new Post("", main_type.getText(), user);
+                            DBManagerTester.insert(post);
 
                             loadGroupMessage(post);
                             u.getReceivedMessages().add(post);
@@ -686,10 +697,13 @@ public class MainPageController {
        //This second part is about adding comments
         else if(the_list.getSelectionModel().getSelectedItem().getText().equals("New")){
            for (Post post : Post.Posts){
-               if(post.getID() == Integer.parseInt(send_button.getId())){
+               if(post.getId() == Integer.parseInt(send_button.getId())){
                    if(!main_type.getText().isEmpty()){
                        Comment comment = new Comment(main_type.getText(),user);
-                       post.comment(comment);
+
+                       DBManagerTester.insert(comment);
+
+                       post.getComments().add(comment);
                        Comment.Comments.add(comment);
                        main_type.clear();
 
@@ -793,7 +807,7 @@ public class MainPageController {
 
         MessageOptions_Controller controller = loader.getController();
         for(Post p : Post.Posts)
-            if(p.getID() == Integer.parseInt(textFlow.getId())){
+            if(p.getId() == Integer.parseInt(textFlow.getId())){
                 controller.initialize(textFlow,p,user,main_type);
 
                 break;
@@ -858,7 +872,7 @@ public class MainPageController {
         textFlow.setMaxWidth(TextFlow.USE_PREF_SIZE);
         textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE);
         textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
-        textFlow.setId(String.valueOf(post.getID()));
+        textFlow.setId(String.valueOf(post.getId()));
 
 
         textFlow.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -921,7 +935,7 @@ public class MainPageController {
 
         container.getChildren().add(profileImage);
         textFlow.getChildren().add(text);
-        textFlow.setId(String.valueOf(post.getID()));
+        textFlow.setId(String.valueOf(post.getId()));
         //textFlow.setPrefWidth(text.getWidth()+100);
         textFlow.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
         textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
@@ -930,7 +944,7 @@ public class MainPageController {
         textFlow.getChildren().add(hyperlink);
 
         //hyperlink.setTranslateY(textFlow.getHeight());
-        hyperlink.setId(String.valueOf(post.getID()));
+        hyperlink.setId(String.valueOf(post.getId()));
         hyperlink.setOnMouseClicked(this::ViewComments);
         textFlow.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -997,7 +1011,7 @@ public class MainPageController {
         container.setStyle("-fx-background-color: transparent;");
         setStyle(textFlow,comment);
 
-        textFlow.setId(String.valueOf(comment.getID()));
+        textFlow.setId(String.valueOf(comment.getId()));
         textFlow.setPrefWidth(100);
         textFlow.setMinWidth(TextFlow.USE_PREF_SIZE);
         textFlow.setMaxWidth(TextFlow.USE_PREF_SIZE);
@@ -1162,6 +1176,7 @@ public class MainPageController {
 
         NewGroupController mainPageController = loader.getController();
         Group group = new Group("");
+        DBManagerTester.insert(group);
         mainPageController.initialize(user, group);
 
         Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();

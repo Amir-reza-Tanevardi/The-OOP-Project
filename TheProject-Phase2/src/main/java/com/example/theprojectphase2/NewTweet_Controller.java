@@ -45,9 +45,10 @@ public class NewTweet_Controller {
 
         //post.setImage(image.getImage());
 
+        DBManagerTester.insert(post);
+
         Post.Posts.add(post);
         user.getPosts().add(post);
-
         //Because the dataBase doesn't work for now I can't save the massage but whenever it
         // got fixed just uncomment the kine below
         //DBManager.save(post);

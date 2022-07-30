@@ -156,6 +156,8 @@ public class FollowersViewGroup_Controller {
 
     public void Confirm(ActionEvent event) throws IOException {
         group.getMembers().addAll(Selected);
+        DBManagerTester.update(group);
+
         Popup popup = (Popup) ((Node)event.getSource()).getScene().getWindow();
         popup.hide();
 

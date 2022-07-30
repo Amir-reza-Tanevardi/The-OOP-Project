@@ -1,16 +1,126 @@
 package com.example.theprojectphase2;
 
+import javafx.scene.image.Image;
+
+import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class User implements Comparable<Post> ,Saveable{
+@DBTable(tableName = "users")
+public class User implements Comparable<Post>{
+
+    public ArrayList<Double> getFollowersId() {
+        return followersId;
+    }
+
+    public Boolean getNormal() {
+        return isNormal;
+    }
+
+    public ArrayList<Double> getFollowedId() {
+        return followedId;
+    }
+
+    public ArrayList<Double> getGroupsId() {
+        return groupsId;
+    }
+
+    public ArrayList<Double> getSavedPostsId() {
+        return savedPostsId;
+    }
+
+    public ArrayList<Double> getLikedPostsId() {
+        return likedPostsId;
+    }
+
+    public ArrayList<Double> getPostsId() {
+        return postsId;
+    }
+
+    public ArrayList<Double> getReceivedMessagesId() {
+        return receivedMessagesId;
+    }
+
+    @DBPrimaryKey
+    @DBAutoIncrement
+    @DBField(name = "Id")
+    Integer ID = 0;
+
+    @DBField(name = "followers")
+    public ArrayList<Double> followersId = new ArrayList<>();
+
+    public ArrayList<User> followers = new ArrayList<>();
 
     public static ArrayList<User> Users = new ArrayList<>();
-    int ID;
-    int Age;
+
+
+
+    @DBField(name = "age")
+    Integer Age = 0;
+
+    @DBField(name = "phoneNumber")
+    String PhoneNumber;
+
+    @DBField(name = "email")
+    String Email;
+
+    //@DBField(name = "image")
+    //Image image;
+
+    @DBField(name = "Username")
+    public String UserName;
+
+    @DBField(name = "Password")
+    protected String PassWord;
+
+    @DBField(name = "gender")
+    Boolean gender; //true for male and false for female
+
+
+    @DBField(name = "IsNormal")
+    Boolean isNormal;
+
+    @DBField(name = "bio")
+    String Bio;
+
+
+    User(String userName,String passWord){this.UserName = userName; this.PassWord=passWord;}
+    User(){}//default constructor
+
+
+
+    @DBField(name = "followed")
+    ArrayList<Double> followedId = new ArrayList<>();
+
+    ArrayList<User>  followed = new ArrayList<>();
+
+    @DBField(name = "myGroups")
+    ArrayList<Double> groupsId = new ArrayList<>();
+
+    ArrayList<Group> groups = new ArrayList<>();
+
+    @DBField(name = "mySavedPosts")
+    ArrayList<Double> savedPostsId = new ArrayList<>();
+
+    ArrayList<Post> savedPosts = new ArrayList<>();
+
+    @DBField(name = "myLikedPosts")
+    ArrayList<Double> likedPostsId = new ArrayList<>();
+
+    ArrayList<Post> likedPosts = new ArrayList<>();
+
+    @DBField(name = "myPosts")
+    ArrayList<Double> postsId = new ArrayList<>();
+
+    ArrayList<Post> posts = new ArrayList<>();
+
+    @DBField(name = "receivedMessages")
+    ArrayList<Double>  receivedMessagesId = new ArrayList<>();
+
+    ArrayList<Post> receivedMessages = new ArrayList<>();
 
     public static ArrayList<User> getUsers() {
         return Users;
@@ -44,20 +154,12 @@ public class User implements Comparable<Post> ,Saveable{
         return gender;
     }
 
-    public boolean isPrivate() {
-        return isPrivate;
-    }
-
     public String getBio() {
         return Bio;
     }
 
     public boolean getGender() {
         return gender;
-    }
-
-    public boolean getPrivacy() {
-        return isPrivate;
     }
 
     public ArrayList<User> getFollowers() {
@@ -84,34 +186,17 @@ public class User implements Comparable<Post> ,Saveable{
         return posts;
     }
 
-    String PhoneNumber;
-    String Email;
-    public String UserName;
-    protected String PassWord;
-    boolean gender; //true for male and false for female
-    boolean isPrivate; //true for private and false for not private
-    boolean isNormal;
-    String Bio;
-    User(String userName,String passWord){this.UserName = userName; this.PassWord=passWord;}
-    User(){}//default constructor
-
-    ArrayList<User> followers = new ArrayList<>();
-    ArrayList<User>  followed = new ArrayList<>();
-    transient ArrayList<Group> groups = new ArrayList<>();
-    ArrayList<Post> savedPosts = new ArrayList<>();
-    ArrayList<Post> likedPosts = new ArrayList<>();
-
     public void setReceivedMessages(ArrayList<Post> receivedMessages) {
         this.receivedMessages = receivedMessages;
     }
 
-    ArrayList<Post> posts = new ArrayList<>();
+
 
     public ArrayList<Post> getReceivedMessages() {
         return receivedMessages;
     }
 
-    ArrayList<Post> receivedMessages = new ArrayList<>();
+
     void ChangeUserName(String NewUserName){}
     void ChangePassword(){}
     void SetBio(String NewBio){}
@@ -129,6 +214,7 @@ public class User implements Comparable<Post> ,Saveable{
     void DirectMessage(){}
     void DeletePost(){}
 
+    /*
     public static void SignUp(Scanner myConsole , DataBase dataBase) throws SQLException {
         System.out.println("Enter Your User Name");
         String s1 = myConsole.nextLine();
@@ -195,6 +281,7 @@ public class User implements Comparable<Post> ,Saveable{
 
         }
     }
+     */
 
     /*public static void Login(String s1, String s2) throws SQLException {
 
@@ -245,95 +332,7 @@ public class User implements Comparable<Post> ,Saveable{
     }*/
     void Logout(){}
 
-    public static User initializeUser(ResultSet set) {
-        User user = null;
-        try {
 
-            user = new User(set.getString("username"), set.getString("password"));
-            user.setID(set.getInt("id"));
-            user.setAge(set.getInt("age"));
-            user.setBio(set.getString("Bio"));
-            user.setEmail(set.getString("Email"));
-            user.setPhoneNumber(set.getString("Phonenumber"));
-            user.setGender(set.getBoolean("Gender"));
-            user.setPrivate(set.getBoolean("isPrivate"));
-            user.setNormal(set.getBoolean("isNormal"));
-
-
-
-
-            //Initialize all accounts
-            ResultSet allSet = DBManager.getResultSet("SELECT * FROM users;");
-
-            while(allSet.next()){
-                User user1 = new User(allSet.getString(2), allSet.getString(3));
-                user1.setID(allSet.getInt("id"));
-                user1.setAge(allSet.getInt("age"));
-                user1.setBio(allSet.getString("Bio"));
-                user1.setEmail(allSet.getString("Email"));
-                user1.setPhoneNumber(allSet.getString("Phonenumber"));
-                user1.setGender(allSet.getBoolean("Gender"));
-                user1.setPrivate(allSet.getBoolean("isPrivate"));
-                user1.setNormal(allSet.getBoolean("isNormal"));
-
-
-                if(!User.Users.contains(user1))
-                    User.Users.add(user1);
-            }
-
-            //Initialize All Groups
-            ResultSet groupSet = DBManager.getResultSet("SELECT * FROM `groups`;");
-            while(groupSet.next()){
-                Group group = DBManager.getObject("`groups`",groupSet.getInt("id"),Group.class);
-                Group g = DBManager.getObject("`groups`",groupSet.getInt("id"),Group.class);
-                group.setID(groupSet.getInt("id"));
-
-                group.getMembers().clear();
-
-
-                //System.out.println(group.getMembers().get(0).getUserName() + "  " + group.getMembers().get(1).getUserName());
-
-                for (User user1 : g.getMembers()){
-                    for(User user2 : Users)
-                     if(user2.getID() == user1.getID()) {
-                         user2.getGroups().add(group);
-                         group.getMembers().add(user2);
-                     }
-                }
-                
-
-                Group.Groups.add(group);
-
-            }
-
-            ///
-
-
-            ResultSet followersSet = DBManager.getResultSet("SELECT * FROM follow WHERE followed_id = " + user.getID());
-            //followersSet.next();
-            while (followersSet.next())
-            {
-                for(User u : User.Users)
-                    if(u.getID()==followersSet.getInt(1))
-                    {user.getFollowers().add(u); break;}
-            }
-
-            ResultSet followingSet = DBManager.getResultSet("SELECT * FROM follow WHERE follower_id = " + user.getID());
-
-            while (followingSet.next())
-            {
-                for(User u : User.Users)
-                    if(u.getID()==followingSet.getInt(2))
-                    {user.getFollowed().add(u); break;}
-            }
-
-
-        }
-        catch (SQLException e){
-            e.printStackTrace();
-        }
-        return user;
-    }
 
 
     public static void viewFolloweds(Scanner myConsole , User user) throws SQLException {
@@ -469,21 +468,89 @@ public class User implements Comparable<Post> ,Saveable{
         this.gender = gender;
     }
 
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
-    }
-
     public void setBio(String bio) {
         Bio = bio;
     }
 
-    @Override
-    public String getTableName() {
-        return "users";
-    }
 
     @Override
     public int compareTo(Post o) {
         return 0;
+    }
+
+    public void setID(Integer ID) {
+        this.ID = ID;
+    }
+
+    public void setFollowersId(ArrayList<Double> followersId) {
+        this.followersId = followersId;
+    }
+
+    public void setFollowers(ArrayList<User> followers) {
+        this.followers = followers;
+    }
+
+    public void setAge(Integer age) {
+        Age = age;
+    }
+
+    public void setUserName(String userName) {
+        UserName = userName;
+    }
+
+    public void setPassWord(String passWord) {
+        PassWord = passWord;
+    }
+
+    public void setGender(Boolean gender) {
+        this.gender = gender;
+    }
+
+    public void setNormal(Boolean normal) {
+        isNormal = normal;
+    }
+
+    public void setFollowedId(ArrayList<Double> followedId) {
+        this.followedId = followedId;
+    }
+
+    public void setFollowed(ArrayList<User> followed) {
+        this.followed = followed;
+    }
+
+    public void setGroupsId(ArrayList<Double> groupsId) {
+        this.groupsId = groupsId;
+    }
+
+    public void setGroups(ArrayList<Group> groups) {
+        this.groups = groups;
+    }
+
+    public void setSavedPostsId(ArrayList<Double> savedPostsId) {
+        this.savedPostsId = savedPostsId;
+    }
+
+    public void setSavedPosts(ArrayList<Post> savedPosts) {
+        this.savedPosts = savedPosts;
+    }
+
+    public void setLikedPostsId(ArrayList<Double> likedPostsId) {
+        this.likedPostsId = likedPostsId;
+    }
+
+    public void setLikedPosts(ArrayList<Post> likedPosts) {
+        this.likedPosts = likedPosts;
+    }
+
+    public void setPostsId(ArrayList<Double> postsId) {
+        this.postsId = postsId;
+    }
+
+    public void setPosts(ArrayList<Post> posts) {
+        this.posts = posts;
+    }
+
+    public void setReceivedMessagesId(ArrayList<Double> receivedMessagesId) {
+        this.receivedMessagesId = receivedMessagesId;
     }
 }

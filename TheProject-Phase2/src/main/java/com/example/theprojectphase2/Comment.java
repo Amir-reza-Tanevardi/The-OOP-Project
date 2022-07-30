@@ -2,19 +2,17 @@ package com.example.theprojectphase2;
 
 import java.util.ArrayList;
 
+@DBTable(tableName = "comments")
 public class Comment extends Post {
-    private static final String TABLE_NAME="comments";
 
-    public static transient ArrayList<Comment> Comments = new ArrayList<>();
+    public static ArrayList<Comment> Comments = new ArrayList<>();
 
     Comment(String context , User owner){
         super("", context , owner);
     }
+    Comment(){}
 
-    @Override
-    public String getTableName() {
-        return TABLE_NAME;
-    }
+
 
 
 

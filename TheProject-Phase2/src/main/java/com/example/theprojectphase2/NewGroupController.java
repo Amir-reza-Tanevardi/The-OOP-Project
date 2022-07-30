@@ -144,10 +144,16 @@ public class NewGroupController {
     public void Confirm(ActionEvent event) throws IOException {
         group.GroupName = group_name.getText();
         //group.image =
-        if(!group.getGroupName().isEmpty() && !group.getMembers().isEmpty()){
+        if(!group.getGroupName().isEmpty() && group.getMembers().size()>0){
             Group.Groups.add(group);
-            for(User u : group.getMembers())
+
+
+            for(User u : group.getMembers()) {
                 u.getGroups().add(group);
+            }
+
+
+
 
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("MainPage.fxml"));

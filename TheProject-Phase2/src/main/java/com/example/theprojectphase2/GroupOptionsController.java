@@ -104,6 +104,7 @@ public class GroupOptionsController {
         confirm_button.setVisible(!confirm_button.isVisible());
 
         group.GroupName = name_field.getText();
+        DBManagerTester.update(group);
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("ProfileGroup.fxml"));
