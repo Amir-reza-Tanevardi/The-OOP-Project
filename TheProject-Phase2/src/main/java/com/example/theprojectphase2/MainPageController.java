@@ -1,16 +1,20 @@
 package com.example.theprojectphase2;
 
+import com.sun.javafx.tk.FontLoader;
+import com.sun.javafx.tk.Toolkit;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableArray;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -21,19 +25,28 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
+import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Objects;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class MainPageController {
 
@@ -97,13 +110,20 @@ public class MainPageController {
     @FXML
     Button newGroup_button;
 
+    @FXML
+    ScrollPane scroll_bar;
+
+    @FXML
+    Button attachment;
+
     boolean isInGroup;
+    boolean isInPv;
 
     SimpleBooleanProperty isDark;
 
     User user; //The user that's logged in his/her account
 
-
+    ImageView view = new ImageView();
 
 
     public void initialize(User u){
@@ -116,8 +136,6 @@ public class MainPageController {
 
         //title.setManaged(false);
         title.setVisible(false);
-
-
 
         title_image.setOnMouseClicked(event -> {
             try {
@@ -147,14 +165,18 @@ public class MainPageController {
         main_image.setClip(circle);
         main_image.setImage(user.getImage());
 
+        Circle circle1 = new Circle(30);
+        circle1.setTranslateX(30);
+        circle1.setTranslateY(30);
+        title_image.setClip(circle1);
+
 
         loadData(user);
 
-        myposts_button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                ViewMyPosts(user);
-            }
+        myposts_button.setOnAction(event -> ViewMyPosts(user));
+
+        attachment.setOnAction(event -> {
+            view.setImage(attachment(event));
         });
 
 
@@ -186,13 +208,18 @@ public class MainPageController {
         ToggleSwitch toggleSwitch = new ToggleSwitch();
 
         setting.getChildren().add(toggleSwitch);
+        title.setStyle("-fx-background-color: rgb(180,216,225)");
         isDark = toggleSwitch.switchOnProperty();
         isDark.addListener((observable, oldValue, newValue) -> {
-            if(newValue)
+            if(newValue) {
                 toggleSwitch.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                title.setStyle("-fx-background-color: #373e43;");
+            }
 
-            else
+            else {
                 toggleSwitch.getScene().getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                title.setStyle("-fx-background-color: rgb(180,216,225)");
+            }
         });
 
 
@@ -404,19 +431,16 @@ public class MainPageController {
         title.setManaged(false);
 
 
-        ArrayList<Post> newPosts = new ArrayList<>();
-
-        for(Post post : Post.Posts)
-            if(post.getOwner().getID() == u.getID())
-                newPosts.add(post);
+        ArrayList<Post> newPosts = new ArrayList<>(u.getPosts());
 
 
-        //Collections.sort(newPosts);
-        //Because The Date is not enabled
+
+        Collections.sort(newPosts);
+
 
         //not sure if it sorted it ascending or descending. if didn't get
         //wanted results, just uncomment the line below
-        //Collections.reverse(newPosts);
+        Collections.reverse(newPosts);
         main_type.clear();
         main_type.setDisable(true);
         send_button.setDisable(true);
@@ -473,18 +497,14 @@ public class MainPageController {
               }
 
 
-        else if(event.getButton() == MouseButton.SECONDARY)
-            OpenMessageOption(event);
-
-
     }
 
 
-    public void MOPtions(MouseEvent event, TextFlow textFlow, Post post) throws IOException {
+    //public void MOPtions(MouseEvent event, TextFlow textFlow, Post post) throws IOException {
 
-        if(event.getButton() == MouseButton.SECONDARY)
-           OpenMessageOption(event);
-    }
+        //if(event.getButton() == MouseButton.SECONDARY)
+           //OpenMessageOption(event);
+    //}
 
 
     public void LikeComment(MouseEvent event) throws IOException {
@@ -502,8 +522,8 @@ public class MainPageController {
                            comment.getContext() +"\n" + comment.getLikers().size() + "  likes"));
                    }
 
-        else if(event.getButton() == MouseButton.SECONDARY)
-                    OpenMessageOption(event);
+        //else if(event.getButton() == MouseButton.SECONDARY)
+                   // OpenMessageOption(event);
     }
 
 
@@ -543,6 +563,7 @@ public class MainPageController {
         chat_box.setDisable(false);
         send_button.setDisable(false);
         isInGroup = false;
+        isInPv = true;
 
 
         chat_box.getChildren().retainAll(title);
@@ -555,7 +576,7 @@ public class MainPageController {
                 main_type.setPromptText("Type New Massage PV");
                 title_label.setText(u.getUserName());
                 title_image.setId(chosen.getId());
-                //title_image.setImage(g.Image); Uncomment The line when implemented The image attribute
+                title_image.setImage(u.getImage());
 
                 for (Post post : messages) {
                    loadGroupMessage(post);
@@ -577,6 +598,7 @@ public class MainPageController {
             send_button.setDisable(false);
 
             isInGroup = true;
+            isInPv = false;
 
 
             chat_box.getChildren().retainAll(title);
@@ -587,7 +609,7 @@ public class MainPageController {
                     main_type.setPromptText("Type New Massage");
                     title_label.setText(g.getGroupName()+"\n"+g.getMembers().size()+" members");
                     title_image.setId(chosen.getId());
-                    //title_image.setImage(g.Image); Uncomment The line when implemented The image attribute
+                    title_image.setImage(g.getImage());
 
                     send_button.setId(String.valueOf(g.getID()));
 
@@ -638,21 +660,39 @@ public class MainPageController {
     }
 
 
-    public void Send(){
+    public void Send() throws IOException {
         //This method will be called whenever we want to send a message to PV,
         //Group, or we want to add a Comment to a post
 
 
         //This first part is for group messages
-        if(the_list.getSelectionModel().getSelectedItem().getText().equals("Groups")) {
+        //if(the_list.getSelectionModel().getSelectedItem().getText().equals("Groups")) {
 
 
-          if(isInGroup) {
+          if(isInGroup && !isInPv) {
               for (Group g : user.getGroups())
-                  if (g.getID() == Integer.parseInt(send_button.getId()) && !main_type.getText().isEmpty()) {
+                  if (g.getID() == Integer.parseInt(send_button.getId()) && (!main_type.getText().isEmpty() ||view.getImage()!=null)) {
 
                       Post post = new Post("", main_type.getText(), user);
                       post.setOwnerId(user.getID());
+
+
+                      if(view.getImage() == null)
+                          post.setImageString("null");
+
+                      else{
+                          post.setImage(view.getImage());
+
+                          BufferedImage bImage = SwingFXUtils.fromFXImage(view.getImage(), null);
+                          ByteArrayOutputStream s = new ByteArrayOutputStream();
+                          ImageIO.write(bImage, "png", s);
+                          byte[] res  = s.toByteArray();
+                          s.close();
+                          String encodedFile = Base64.getEncoder().encodeToString(res);
+                          post.setImageString(encodedFile);
+                          view.setImage(null);
+                      }
+
                       DBManagerTester.insert(post);
 
 
@@ -672,12 +712,29 @@ public class MainPageController {
           }
 
 
-          else {
+          else if(isInPv && !isInGroup) {
                     for (User u : User.Users)
-                        if (u.getID() == Integer.parseInt(send_button.getId()) && !main_type.getText().isEmpty()) {
+                        if (u.getID() == Integer.parseInt(send_button.getId()) && (!main_type.getText().isEmpty() ||view.getImage()!=null)) {
 
                             Post post = new Post("", main_type.getText(), user);
                             post.setOwnerId(user.getID());
+
+                            if(view.getImage() == null)
+                                post.setImageString("null");
+
+                            else{
+                                post.setImage(view.getImage());
+
+                                BufferedImage bImage = SwingFXUtils.fromFXImage(view.getImage(), null);
+                                ByteArrayOutputStream s = new ByteArrayOutputStream();
+                                ImageIO.write(bImage, "png", s);
+                                byte[] res  = s.toByteArray();
+                                s.close();
+                                String encodedFile = Base64.getEncoder().encodeToString(res);
+                                post.setImageString(encodedFile);
+                                view.setImage(null);
+                            }
+
                             DBManagerTester.insert(post);
 
                             loadGroupMessage(post);
@@ -695,15 +752,18 @@ public class MainPageController {
                 }
 
 
-        }
+        //}
 
        //This second part is about adding comments
-        else if(the_list.getSelectionModel().getSelectedItem().getText().equals("New")){
+        else if(!isInGroup){
+            System.out.println("add comment");
            for (Post post : Post.Posts){
                if(post.getId() == Integer.parseInt(send_button.getId())){
                    if(!main_type.getText().isEmpty()){
                        Comment comment = new Comment(main_type.getText(),user);
                        comment.setOwnerId(user.getID());
+
+                       comment.setImageString("null");
 
                        DBManagerTester.insert(comment);
 
@@ -711,7 +771,10 @@ public class MainPageController {
                        Comment.Comments.add(comment);
                        main_type.clear();
 
-                       loadComment(comment);
+                       TextFlow t = loadComment(comment);
+                       t.setTranslateX(40);
+                       int index = chat_box.getChildren().indexOf(post);
+                       chat_box.getChildren().add(index + post.getComments().size() + 2,t);
                    }
 
                    else{
@@ -791,10 +854,10 @@ public class MainPageController {
     }
 
 
-    public void OpenMessageOption(MouseEvent event) throws IOException {
+    public void OpenMessageOption(MouseEvent event, String s) throws IOException {
         TextFlow textFlow = (TextFlow) event.getSource();
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("MessageOptionsMenu.fxml"));
+        loader.setLocation(getClass().getResource(s));
         Parent parent = loader.load();
 
         Popup popup = new Popup();
@@ -809,13 +872,25 @@ public class MainPageController {
         });
         //Scene scene = new Scene(parent);
 
-        MessageOptions_Controller controller = loader.getController();
-        for(Post p : Post.Posts)
-            if(p.getId() == Integer.parseInt(textFlow.getId())){
-                controller.initialize(textFlow,p,user,main_type);
+        if(s.equals("MessageOptionsMenu.fxml")) {
+            MessageOptions_Controller controller = loader.getController();
+            for (Post p : Post.Posts)
+                if (p.getId() == Integer.parseInt(textFlow.getId())) {
+                    controller.initialize(textFlow, p, user, main_type);
 
-                break;
-            }
+                    break;
+                }
+        }
+
+        else if(s.equals("gmessages_options.fxml")){
+            GmessagesOptions_Controller controller = loader.getController();
+            for (Post p : Post.Posts)
+                if (p.getId() == Integer.parseInt(textFlow.getId())) {
+                    controller.initialize(textFlow, p, user, main_type);
+
+                    break;
+                }
+        }
 
         double x = textFlow.getScene().getWindow().getX();
         double y = textFlow.getScene().getWindow().getY();
@@ -836,79 +911,9 @@ public class MainPageController {
 
 
     public void loadGroupMessage(Post post){
-        ImageView profileImage = new ImageView(post.getOwner().getImage());
-        Circle circle = new Circle(20);
-        circle.setTranslateX(30);
-        circle.setTranslateY(30);
-        profileImage.setClip(circle);
-        profileImage.setId(String.valueOf(post.getOwner().getID()));
-
-        profileImage.setFitHeight(50);
-        profileImage.setFitWidth(60);
-        profileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                try {
-                    ViewUserProfile(event);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        TextFlow container = new TextFlow();
-
-        TextFlow textFlow = new TextFlow();
-        String filling = post.getOwner().getUserName() + "          "  + "\n" +
-                post.getContext();
-
-        Label text = new Label(filling);
-
-        text.setTranslateX(10);
-
-        container.getChildren().add(profileImage);
-        textFlow.setTranslateY(-profileImage.getFitHeight()/2);
-
-
-        textFlow.getChildren().add(text);
-        textFlow.setPrefWidth(100);
-        textFlow.setMinWidth(TextFlow.USE_PREF_SIZE);
-        textFlow.setMaxWidth(TextFlow.USE_PREF_SIZE);
-        textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE);
-        textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
-        textFlow.setId(String.valueOf(post.getId()));
-
-
-        textFlow.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                try {
-                    MOPtions(event, textFlow, post);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        container.setStyle("-fx-background-color: transparent");
-        setStyle(textFlow,post);
-
-        main_type.clear();
-
-        container.getChildren().add(textFlow);
-
-
-        chat_box.getChildren().add(container);
-        VBox.setMargin(textFlow, new Insets(20, 0, 0, 10));
-
-    }
-
-
-    public void loadPost(Post post){
         TextFlow textFlow = new TextFlow();
         TextFlow container = new TextFlow();
         VBox vBox = new VBox();
-        Hyperlink hyperlink = new Hyperlink("Comments");
 
         ImageView profileImage = new ImageView(post.getOwner().getImage());
         Circle circle = new Circle(20);
@@ -933,46 +938,65 @@ public class MainPageController {
         ImageView view = null;
         if(post.image != null) {
             view = new ImageView(post.image);
-            view.setFitHeight(180);
-            view.setFitWidth(200);
+            view.setFitHeight(view.getImage().getHeight()/4);
+            view.setFitWidth(view.getImage().getWidth()/4);
             view.setTranslateX(10);
         }
 
 
-        Label text1 = new Label(post.getOwner().getUserName()+"\n"+post.getTitle() +"       "+"\n" +
-                post.getContext() + "\n" + post.getLikers().size() + "   likes\n");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+        Label text1 = new Label(post.getOwner().getUserName() + "        " + post.publishDate.format(formatter));
+        text1.setStyle("-fx-text-fill: rgb(150,150,150);" + "-fx-font-size: 13");
+
+        ArrayList<User> watchers = new ArrayList<>();
+        for(String i : post.getSeens().keySet()){
+            for(User uu : User.Users)
+                if(uu.getID() == Integer.parseInt(i))
+                    watchers.add(uu);
+        }
+
+        Label text2 = new Label(post.getContext());
+
+        if(!watchers.contains(user))
+            text2.setStyle("-fx-font-size: 12;" + "-fx-font-weight: bold;");
+
+        else
+            text2.setStyle("-fx-font-size: 12;");
 
         textFlow.setTranslateY(-profileImage.getFitHeight()/2);
-        textFlow.setTranslateX(20);
+
         text1.setTranslateX(10);
+        text2.setTranslateX(10);
 
-
-        container.getChildren().add(profileImage);
         vBox.getChildren().add(text1);
+        vBox.getChildren().add(text2);
 
+        Text t1 = new Text(text1.getText());
+        Text t2 = new Text(text2.getText());
+        vBox.setMinWidth(Math.max(t1.getLayoutBounds().getWidth()+50,t2.getLayoutBounds().getWidth()+50) );
+        //textFlow.setPrefWidth(Math.max(t1.getLayoutBounds().getWidth(),t2.getLayoutBounds().getWidth()) +30);
 
         if(post.image != null) {
             vBox.getChildren().add(view);
-            vBox.setPrefWidth(view.getFitWidth()+20);
+            vBox.setMinWidth(Math.max(t2.getLayoutBounds().getWidth()+50,view.getFitWidth()+50) );
         }
 
+
+
         textFlow.setId(String.valueOf(post.getId()));
+        container.setId(String.valueOf(post.getId()));
         //textFlow.setPrefWidth(text.getWidth()+100);
         textFlow.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
         textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
         textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE);
         textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
-        vBox.getChildren().add(hyperlink);
 
-        //hyperlink.setTranslateY(textFlow.getHeight());
-        hyperlink.setId(String.valueOf(post.getId()));
-        hyperlink.setOnMouseClicked(this::ViewComments);
-        textFlow.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
+
+        textFlow.setOnMouseClicked(event -> {
+            if(event.getButton() == MouseButton.SECONDARY) {
                 try {
-                    LikePost(event);
+                    OpenMessageOption(event,"gmessages_options.fxml");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -980,8 +1004,242 @@ public class MainPageController {
         });
 
 
+        container.setStyle("-fx-background-color: transparent");
+        setStyle(textFlow,post);
 
-        hyperlink.setTranslateX(10);
+
+        /*
+        if(isDark.getValue())
+            vBox.getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+        else
+            vBox.setStyle("-fx-background-radius: 15;" + "-fx-background-color: rgb(200,200,200);");
+
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue) {
+                vBox.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                vBox.setStyle("-fx-background-color: #373e43;" + "-fx-background-radius: 15;");
+            }
+
+            else {
+                vBox.getScene().getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                vBox.setStyle("-fx-background-radius: 15;" + "-fx-background-color: rgb(200,200,200);");
+            }
+        });*/
+
+
+        VBox.setMargin(textFlow, new Insets(20, 0, 0, 10));
+        textFlow.getChildren().add(vBox);
+
+        if(post.getOwner().getID() == user.getID()){
+            container.getChildren().add(textFlow);
+            container.getChildren().add(profileImage);
+            container.setTextAlignment(TextAlignment.RIGHT);
+            profileImage.setTranslateX(-10);
+            textFlow.setTranslateX(-10);
+        }
+
+        else {
+            container.getChildren().add(profileImage);
+            container.getChildren().add(textFlow);
+            container.setTextAlignment(TextAlignment.LEFT);
+            textFlow.setTranslateX(20);
+        }
+
+
+        chat_box.getChildren().add(container);
+
+        container.localToSceneTransformProperty().addListener( ( observable, oldValue, newValue ) ->
+        {
+            final Bounds boundsOnScene = container.localToScene( container.getBoundsInLocal() );
+            if(boundsOnScene.getMinY() > 0 && boundsOnScene.getMinY() < vBox.getHeight() && !watchers.contains(user))
+                for(Post post1 : Post.Posts)
+                    if(post1.getId() == Integer.parseInt(container.getId())){
+                        text2.setStyle("-fx-font-size: 12;");
+                        post.seens.put(String.valueOf(user.getID()),LocalDateTime.now());
+                    }
+
+            //System.out.println(boundsOnScene.getMinY());
+            //System.out.println(vBox.getHeight());
+        } );
+
+
+    }
+
+
+    public void loadPost(Post post){
+        TextFlow textFlow = new TextFlow();
+        TextFlow container = new TextFlow();
+        VBox vBox = new VBox();
+        HBox hBox = new HBox();
+
+
+        //for comment logo
+        Image commentImage = new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\comment.png");
+        ImageView commentLogo = new ImageView(commentImage);
+        Button comment_button = new Button("");
+        commentLogo.setFitWidth(commentImage.getWidth()/11);
+        commentLogo.setFitHeight(commentImage.getHeight()/11);
+        comment_button.setGraphic(commentLogo);
+        comment_button.setStyle("-fx-background-color: transparent;");
+
+
+        //for like logo
+        Image likeImage = new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\like.png");
+        Image likeFillImage = new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\like-fill.png");
+        ImageView likeLogo = new ImageView(likeImage);
+        if(post.getLikers().contains(user))
+            likeLogo.setImage(likeFillImage);
+        Button like_button = new Button("");
+        likeLogo.setFitWidth(likeImage.getWidth()/5);
+        likeLogo.setFitHeight(likeImage.getHeight()/5);
+        like_button.setGraphic(likeLogo);
+        like_button.setStyle("-fx-background-color: transparent;");
+
+        Label likes = new Label(post.getLikers().size() + "  Likes");
+        likes.setStyle("-fx-text-fill: red;");
+        likes.setTranslateY(12);
+
+        like_button.setOnAction(event -> {
+            if(post.getLikers().contains(user)){
+                post.getLikers().remove(user);
+                likeLogo.setImage(likeImage);
+                user.getLikedPosts().remove(post);
+                likes.setText(post.getLikers().size() + "  Likes");
+                post.getLikes().put(String.valueOf(user.getID()),LocalDateTime.now());
+            }
+
+            else{
+                post.getLikers().add(user);
+                likeLogo.setImage(likeFillImage);
+                user.getLikedPosts().add(post);
+                likes.setText(post.getLikers().size() + "  Likes");
+                post.getLikes().remove(String.valueOf(user.getID()));
+            }
+
+        });
+
+
+
+        ImageView profileImage = new ImageView(post.getOwner().getImage());
+        Circle circle = new Circle(20);
+        circle.setTranslateX(30);
+        circle.setTranslateY(30);
+        profileImage.setClip(circle);
+        profileImage.setId(String.valueOf(post.getOwner().getID()));
+        profileImage.setFitHeight(50);
+        profileImage.setFitWidth(50);
+        profileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                try {
+                    ViewUserProfile(event);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        //this part is for post images
+        ImageView view = null;
+        if(post.image != null) {
+            view = new ImageView(post.image);
+            view.setFitHeight((view.getImage().getHeight()*500)/view.getImage().getWidth());
+            view.setFitWidth(500);
+            view.setTranslateX(10);
+            //(800*h)/w
+        }
+
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        Label text1 = new Label(post.getOwner().getUserName() + "        " + post.publishDate.format(formatter));
+        text1.setStyle("-fx-text-fill: rgb(150,150,150);" + "-fx-font-size: 13");
+
+        ArrayList<User> watchers = new ArrayList<>();
+        for(String i : post.getSeens().keySet()){
+            for(User uu : User.Users)
+                if(uu.getID() == Integer.parseInt(i))
+                    watchers.add(uu);
+        }
+
+        for(User u : watchers)
+            System.out.println(u.getUserName());
+
+
+        Label text2 = new Label(post.getTitle() +"       "+"\n" +
+                post.getContext());
+
+        if(!watchers.contains(user))
+          text2.setStyle("-fx-font-size: 15;" + "-fx-font-weight: bold;");
+
+        else
+            text2.setStyle("-fx-font-size: 15;");
+
+        textFlow.setTranslateY(-profileImage.getFitHeight()/2);
+        textFlow.setTranslateX(20);
+        text1.setTranslateX(10);
+        text2.setTranslateX(10);
+
+
+        container.getChildren().add(profileImage);
+        vBox.getChildren().add(text1);
+        vBox.getChildren().add(text2);
+
+        Text t1 = new Text(text1.getText());
+        Text t2 = new Text(text2.getText());
+        vBox.setMinWidth(Math.max(t1.getLayoutBounds().getWidth()+50,t2.getLayoutBounds().getWidth()+50) );
+            //textFlow.setPrefWidth(Math.max(t1.getLayoutBounds().getWidth(),t2.getLayoutBounds().getWidth()) +30);
+
+        if(post.image != null) {
+            vBox.getChildren().add(view);
+            vBox.setMinWidth(Math.max(t2.getLayoutBounds().getWidth()+50,view.getFitWidth()+50) );
+        }
+
+
+
+        textFlow.setId(String.valueOf(post.getId()));
+        container.setId(String.valueOf(post.getId()));
+        //textFlow.setPrefWidth(text.getWidth()+100);
+        textFlow.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
+        textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
+        textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE);
+        textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
+        hBox.getChildren().add(comment_button);
+        hBox.getChildren().add(like_button);
+        hBox.getChildren().add(likes);
+        //here the views and like button will be added to hBox
+
+        //here up
+        vBox.getChildren().add(hBox);
+
+        //hyperlink.setTranslateY(textFlow.getHeight());
+        //hyperlink.setId(String.valueOf(post.getId()));
+        //hyperlink.setOnMouseClicked(this::ViewComments);
+        textFlow.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if(event.getButton() == MouseButton.PRIMARY) {
+                    try {
+                        LikePost(event);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                else if(event.getButton() == MouseButton.SECONDARY) {
+                    try {
+                        OpenMessageOption(event,"MessageOptionsMenu.fxml");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+
+
+        //hyperlink.setTranslateX(10);
 
         container.setStyle("-fx-background-color: transparent");
         textFlow.setStyle("-fx-background-color: transparent;");
@@ -1009,18 +1267,70 @@ public class MainPageController {
         textFlow.getChildren().add(vBox);
         container.getChildren().add(textFlow);
         chat_box.getChildren().add(container);
+
+        container.localToSceneTransformProperty().addListener( ( observable, oldValue, newValue ) ->
+        {
+            final Bounds boundsOnScene = container.localToScene( container.getBoundsInLocal() );
+            if(boundsOnScene.getMinY() > 0 && boundsOnScene.getMinY() < vBox.getHeight() && !watchers.contains(user))
+               for(Post post1 : Post.Posts)
+                   if(post1.getId() == Integer.parseInt(container.getId())){
+                       text2.setStyle("-fx-font-size: 15;");
+                       post.seens.put(String.valueOf(user.getID()),LocalDateTime.now());
+                   }
+
+            //System.out.println(boundsOnScene.getMinY());
+            //System.out.println(vBox.getHeight());
+        } );
+
+
+
+        for(Comment comment : post.getComments()){
+            TextFlow t = loadComment(comment);
+            chat_box.getChildren().add(t);
+            t.setTranslateX(40);
+            t.setVisible(false);
+            t.setManaged(false);
+            t.setDisable(true);
+
+        }
+
+        comment_button.setOnAction(event -> {
+            send_button.setId(String.valueOf(post.getId()));
+            isInPv = false;
+            isInGroup = false;
+            main_type.setDisable(false);
+            attachment.setDisable(true);
+            send_button.setDisable(false);
+
+            int index = chat_box.getChildren().indexOf(container);
+            ArrayList<Node> comment_containers = new ArrayList<>(chat_box.getChildren().subList(index+1, index + post.getComments().size() + 1));
+
+
+           for(Node t : comment_containers){
+               t.setVisible(!t.isVisible());
+               t.setManaged(!t.isManaged());
+               t.setDisable(!t.isDisable());
+           }
+        });
+
+
     }
 
 
-    public void loadComment(Comment comment){
+    public TextFlow loadComment(Comment comment){
+        TextFlow textFlow = new TextFlow();
+        TextFlow container = new TextFlow();
+        VBox vBox = new VBox();
+        HBox hBox = new HBox();
+
         ImageView profileImage = new ImageView(comment.getOwner().getImage());
         Circle circle = new Circle(20);
         circle.setTranslateX(30);
         circle.setTranslateY(30);
         profileImage.setClip(circle);
-        profileImage.setFitWidth(50);
+        profileImage.setId(String.valueOf(comment.getOwner().getID()));
         profileImage.setFitHeight(50);
-        profileImage.setId(String.valueOf(user.getID()));
+        profileImage.setFitWidth(50);
         profileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -1032,39 +1342,139 @@ public class MainPageController {
             }
         });
 
-        TextFlow textFlow = new TextFlow();
-        TextFlow container = new TextFlow();
-        container.getChildren().add(profileImage);
-        Label text = new Label(comment.getOwner().getUserName() +"       "+"\n" +
-                comment.getContext()+"\n"+comment.getLikers().size()+"   likes");
-        textFlow.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
+        //for like logo
+        Image likeImage = new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\like.png");
+        Image likeFillImage = new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\like-fill.png");
+        ImageView likeLogo = new ImageView(likeImage);
+        if(comment.getLikers().contains(user))
+            likeLogo.setImage(likeFillImage);
+        Button like_button = new Button("");
+        likeLogo.setFitWidth(likeImage.getWidth()/5);
+        likeLogo.setFitHeight(likeImage.getHeight()/5);
+        like_button.setGraphic(likeLogo);
+        like_button.setStyle("-fx-background-color: transparent;");
+
+        Label likes = new Label(comment.getLikers().size() + "  Likes");
+        likes.setStyle("-fx-text-fill: red;");
+        likes.setTranslateY(12);
+
+        like_button.setOnAction(event -> {
+            if(comment.getLikers().contains(user)){
+                comment.getLikers().remove(user);
+                likeLogo.setImage(likeImage);
+                user.getLikedPosts().remove(comment);
+                likes.setText(comment.getLikers().size() + "  Likes");
+                comment.getLikes().put(String.valueOf(user.getID()),LocalDateTime.now());
+            }
+
+            else{
+                comment.getLikers().add(user);
+                likeLogo.setImage(likeFillImage);
+                user.getLikedPosts().add(comment);
+                likes.setText(comment.getLikers().size() + "  Likes");
+                comment.getLikes().remove(String.valueOf(user.getID()));
+            }
+
+        });
+
+        hBox.getChildren().add(like_button);
+        hBox.getChildren().add(likes);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        Label text1 = new Label(comment.getOwner().getUserName() + "        " + comment.publishDate.format(formatter));
+        text1.setStyle("-fx-text-fill: rgb(150,150,150);" + "-fx-font-size: 13");
+
+
+        Label text2 = new Label(comment.getContext());
+
+        text2.setStyle("-fx-font-size: 12;");
+
+        textFlow.setTranslateY(-profileImage.getFitHeight()/2);
+
+        text1.setTranslateX(10);
+        text2.setTranslateX(10);
+
+        vBox.getChildren().add(text1);
+        vBox.getChildren().add(text2);
+        vBox.getChildren().add(hBox);
+
+        Text t1 = new Text(text1.getText());
+        Text t2 = new Text(text2.getText());
+        vBox.setMinWidth(Math.max(t1.getLayoutBounds().getWidth()+50,t2.getLayoutBounds().getWidth()+50) );
+        //textFlow.setPrefWidth(Math.max(t1.getLayoutBounds().getWidth(),t2.getLayoutBounds().getWidth()) +30);
+
+
+
+        textFlow.setId(String.valueOf(comment.getId()));
+        container.setId(String.valueOf(comment.getId()));
+        //textFlow.setPrefWidth(text.getWidth()+100);
+        textFlow.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
+        textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
+        textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE);
+        textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
+
+
+        textFlow.setOnMouseClicked(event -> {
+            if(event.getButton() == MouseButton.SECONDARY) {
                 try {
-                    LikeComment(event);
+                    OpenMessageOption(event,"gmessages_options.fxml");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
-        textFlow.getChildren().add(text);
-        textFlow.setStyle("-fx-background-radius: 15");
-        container.setStyle("-fx-background-color: transparent;");
+
+
+        container.setStyle("-fx-background-color: transparent");
         setStyle(textFlow,comment);
 
-        textFlow.setId(String.valueOf(comment.getId()));
-        textFlow.setPrefWidth(100);
-        textFlow.setMinWidth(TextFlow.USE_PREF_SIZE);
-        textFlow.setMaxWidth(TextFlow.USE_PREF_SIZE);
-        textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE);
-        textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
+
+        /*
+        if(isDark.getValue())
+            vBox.getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+        else
+            vBox.setStyle("-fx-background-radius: 15;" + "-fx-background-color: rgb(200,200,200);");
+
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue) {
+                vBox.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                vBox.setStyle("-fx-background-color: #373e43;" + "-fx-background-radius: 15;");
+            }
+
+            else {
+                vBox.getScene().getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                vBox.setStyle("-fx-background-radius: 15;" + "-fx-background-color: rgb(200,200,200);");
+            }
+        });*/
+
 
         VBox.setMargin(textFlow, new Insets(20, 0, 0, 10));
+        textFlow.getChildren().add(vBox);
+
+
+        container.getChildren().add(profileImage);
         container.getChildren().add(textFlow);
-        textFlow.setTranslateY(-profileImage.getFitHeight()/2);
-        textFlow.setTranslateX(10);
-        text.setTranslateX(10);
-        chat_box.getChildren().add(container);
+        container.setTextAlignment(TextAlignment.LEFT);
+        textFlow.setTranslateX(20);
+
+
+        /*container.localToSceneTransformProperty().addListener( ( observable, oldValue, newValue ) ->
+        {
+            final Bounds boundsOnScene = container.localToScene( container.getBoundsInLocal() );
+            if(boundsOnScene.getMinY() > 0 && boundsOnScene.getMinY() < vBox.getHeight() && !watchers.contains(user))
+                for(Post post1 : Post.Posts)
+                    if(post1.getId() == Integer.parseInt(container.getId())){
+                        text2.setStyle("-fx-font-size: 12;");
+                        post.seens.put(String.valueOf(user.getID()),LocalDateTime.now());
+                    }
+
+            //System.out.println(boundsOnScene.getMinY());
+            //System.out.println(vBox.getHeight());
+        } );*/
+
+        return container;
     }
 
 
@@ -1254,5 +1664,25 @@ public class MainPageController {
             else if(newValue && post.getOwner().getID() != user.getID())
                 textFlow.setStyle("-fx-background-color: #373e43;" + "-fx-background-radius: 15;");
         });
+    }
+
+    public Image attachment(ActionEvent event){
+        Window window = ((Node) (event.getSource())).getScene().getWindow();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose Image");
+
+        Image image = null;
+
+
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image File", "*.png", "*.jpg", "*.gif"));
+
+        File file = fileChooser.showOpenDialog(window);
+        if(file != null){
+            image = new Image(file.toURI().toString());
+        }
+        event.consume();
+
+        return image;
     }
 }

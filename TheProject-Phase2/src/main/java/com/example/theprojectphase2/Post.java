@@ -6,6 +6,8 @@ import javafx.scene.image.Image;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 //import oop.prj.model.DB.DBManager;
 //import oop.prj.model.DB.Saveable;
@@ -25,8 +27,16 @@ public class Post implements Comparable<Post>  {
 
       public ArrayList<User> likers = new ArrayList<>();
 
-      //@DBField(name = "publishDate")
-      //private LocalDateTime publishDate;
+
+      @DBField(name = "seen")
+      public HashMap<String, LocalDateTime> seens = new HashMap<>();
+
+
+      @DBField(name = "likes")
+      public HashMap<String, LocalDateTime> likes = new HashMap<>();
+
+      @DBField(name = "publishDate")
+      public LocalDateTime publishDate;
 
       @DBField(name = "comments")
       public   ArrayList<Double> commentsId = new ArrayList<>();
@@ -101,7 +111,7 @@ public class Post implements Comparable<Post>  {
 
 
 
-      @Override
+      /*@Override
       public boolean equals(Object other) {
             if (other.equals(null)) {
                   return false;
@@ -116,12 +126,13 @@ public class Post implements Comparable<Post>  {
             }
             return false;
 
-      }
+      }*/
 
       protected Post(String title, String context, User owner) {
             this.title = title;
             this.context = context;
             this.owner = owner;
+            this.publishDate = LocalDateTime.now();
             if (Post.Posts.isEmpty())
                   this.id = 0;
             else
@@ -182,9 +193,31 @@ public class Post implements Comparable<Post>  {
 
       }
 
+      public HashMap<String, LocalDateTime> getSeens() {
+            return seens;
+      }
+
+      public void setSeens(HashMap<String, LocalDateTime> seens) {
+            this.seens = seens;
+      }
+
+      public void setLikes(HashMap<String, LocalDateTime> likes) { this.likes = likes; }
+
+      public void setPublishDate(LocalDateTime publishDate) {
+            this.publishDate = publishDate;
+      }
+
+      public HashMap<String, LocalDateTime> getLikes() {
+            return likes;
+      }
+
+      public LocalDateTime getPublishDate() {
+            return publishDate;
+      }
+
       @Override
       public int compareTo(Post o) {
-            return 1;// return publishDate.compareTo(o.getPublishDate());
+             return publishDate.compareTo(o.getPublishDate());
       }
 
       public int getId() {

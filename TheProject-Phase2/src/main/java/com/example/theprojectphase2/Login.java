@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Objects;
@@ -74,7 +75,9 @@ public class Login {
 
     public static void initializeUser() throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
 
-
+        org.joda.time.LocalDateTime l = org.joda.time.LocalDateTime.now();
+        String s = l.getClass().getSimpleName();
+        System.out.println(s);
 
         User.Users = DBManagerTester.doSelectQuery("SELECT * FROM users;", User.class);
 
@@ -108,10 +111,10 @@ public class Login {
                     if(comment.getId() == i)
                         post.getComments().add(comment);
 
-            if(post.getImageString() != null){
-            String base64Image = post.getImageString().split(",")[0];
-            InputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(base64Image));
-            post.setImage(new Image(stream));
+            if(!post.getImageString().equals("null")){
+              String base64Image = post.getImageString().split(",")[0];
+              InputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(base64Image));
+              post.setImage(new Image(stream));
             }
         }
 
@@ -210,25 +213,26 @@ public class Login {
 
         Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
+
         MainStage.setOnCloseRequest(event1 -> {
             System.out.println("Stage is closing");
 
             //update All Posts
             for(Post post : Post.Posts){
-
-
+                post.getLikersId().clear();
                 for(User user1 : post.getLikers())
                         {
                             //post.getLikersId().retainAll(user.getID());
-                            if(!post.getLikersId().contains((double) user1.getID()))
+                            //if(!post.getLikersId().contains((double) user1.getID()))
                                 post.getLikersId().add((double) user1.getID());
                         }
 
+                    post.getCommentsId().clear();
                 for(Comment comment : post.getComments())
                     {
-                        //post.getLikersId().retainAll(user.getID());
-                        if(!post.getCommentsId().contains((double)comment.getId()))
-                            post.getCommentsId().add((double)comment.getId());
+                        post.getCommentsId().add((double)comment.getId());
+                        //if(!post.getCommentsId().contains((double)comment.getId()))
+                            //post.getCommentsId().add((double)comment.getId());
                     }
 
                 DBManagerTester.update(post);

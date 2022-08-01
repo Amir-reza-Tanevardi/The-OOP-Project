@@ -51,8 +51,6 @@ public class NewTweet_Controller {
         post =  new Post(title_text.getText(), newTweet_text.getText(), user);
         post.setOwnerId(user.getID());
 
-        DBManagerTester.insert(post);
-        System.out.println(post.getId() + "   " + post.getOwner().getUserName()+ "   " +post.getOwner().getID());
 
         if(image.getImage() != null){
             post.setImage(image.getImage());
@@ -66,10 +64,13 @@ public class NewTweet_Controller {
             post.setImageString(encodedFile);
         }
 
+        else
+            post.setImageString("null");
+
         //post.setImage(image.getImage());
 
 
-
+        DBManagerTester.insert(post);
         Post.Posts.add(post);
         user.getPosts().add(post);
         //Because the dataBase doesn't work for now I can't save the massage but whenever it

@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="608.0" prefWidth="855.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.theprojectphase2.MainPageController">
+<BorderPane prefHeight="608.0" prefWidth="964.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.theprojectphase2.MainPageController">
    <left>
       <BorderPane>
          <center>
@@ -122,13 +122,13 @@
    <center>
       <BorderPane>
          <center>
-            <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="594.0" prefWidth="678.0">
+            <ScrollPane fx:id="scroll_bar" fitToHeight="true" fitToWidth="true" prefHeight="594.0" prefWidth="678.0">
                <content>
                   <VBox fx:id="chat_box" prefHeight="494.0" prefWidth="652.0" spacing="10.0">
                      <children>
                         <AnchorPane fx:id="title" minWidth="-Infinity" prefHeight="70.0" prefWidth="413.0">
                            <children>
-                              <ImageView fx:id="title_image" fitHeight="70.0" fitWidth="80.0" layoutX="7.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="388.2" />
+                              <ImageView fx:id="title_image" fitHeight="104.0" fitWidth="116.0" layoutX="7.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="462.0" />
                               <Label fx:id="title_label" layoutX="101.0" layoutY="9.0" prefHeight="56.0" prefWidth="94.0" />
                            </children>
                         </AnchorPane>
@@ -148,12 +148,21 @@
          <bottom>
             <AnchorPane prefHeight="45.0" prefWidth="494.0" BorderPane.alignment="CENTER">
                <children>
-                  <TextArea fx:id="main_type" layoutX="-1.0" prefHeight="39.0" prefWidth="425.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="70.0" />
+                  <TextArea fx:id="main_type" layoutX="53.0" prefHeight="39.0" prefWidth="463.0" AnchorPane.leftAnchor="53.0" AnchorPane.rightAnchor="70.0" />
                   <Button fx:id="send_button" layoutX="605.7999877929688" layoutY="6.0" mnemonicParsing="false" onAction="#Send" style="-fx-background-color: white; -fx-border-color: black;" AnchorPane.rightAnchor="14.200000000000045">
                      <graphic>
                         <ImageView fitHeight="23.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@send.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="attachment" layoutY="1.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="34.0" style="-fx-background-color: transparent;">
+                     <graphic>
+                        <ImageView fitHeight="25.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@attachment.png" />
                            </image>
                         </ImageView>
                      </graphic>

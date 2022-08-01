@@ -14,7 +14,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
-public class MessageOptions_Controller {
+public class GmessagesOptions_Controller {
 
     @FXML
     Button edit_button;
@@ -28,27 +28,27 @@ public class MessageOptions_Controller {
     TextArea type;
 
     public void initialize(TextFlow t, Post p, User u, TextArea ta){
-           textFlow = t;
+        textFlow = t;
 
-           for(Post pp : Post.Posts)
-               if(pp.getId() == p.getId())
-                   post = pp;
+        for(Post pp : Post.Posts)
+            if(pp.getId() == p.getId())
+                post = pp;
 
-           for(User uu : User.Users)
-               if(uu.getID() == u.getID())
-                 us = uu;
+        for(User uu : User.Users)
+            if(uu.getID() == u.getID())
+                us = uu;
 
-           type = ta;
+        type = ta;
 
 
-           if(!(post.getOwner().getID() == us.getID())){
-               edit_button.setManaged(false);
-               delete_button.setManaged(false);
-               edit_button.setDisable(true);
-               edit_button.setVisible(false);
-               delete_button.setDisable(true);
-               delete_button.setVisible(false);
-           }
+        if(!(post.getOwner().getID() == us.getID())){
+            edit_button.setManaged(false);
+            delete_button.setManaged(false);
+            edit_button.setDisable(true);
+            edit_button.setVisible(false);
+            delete_button.setDisable(true);
+            delete_button.setVisible(false);
+        }
 
 
     }
@@ -79,16 +79,30 @@ public class MessageOptions_Controller {
             }
 
             else{
+                if(Comment.Comments.contains((Comment) post))
+                {
+                    System.out.println("comment");
+                    for(Post p : Post.Posts)
+                        if(p.getComments().contains(post)){
+                            p.getComments().remove(post);
+                            DBManagerTester.deleteRecordIfExist(post);
+                            VBox vBox = (VBox) (textFlow.getParent().getParent());
+                            vBox.getChildren().remove(textFlow.getParent());
+                        }
+                }
 
+                else {
+                    System.out.println("not comment");
                     for (Group group : Group.Groups)
                         if (group.getPosts().contains(post)) {
                             group.getPosts().remove(post);
+                            DBManagerTester.deleteRecordIfExist(post);
                             VBox vBox = (VBox) (textFlow.getParent().getParent());
                             vBox.getChildren().remove(textFlow.getParent());
 
 
                         }
-
+                }
             }
         }
 
@@ -118,17 +132,13 @@ public class MessageOptions_Controller {
         AnchorPane.setRightAnchor(confirm,10.0);
         VBox vBox1 = (VBox) textFlow.getChildren().get(0);
         Label label = (Label) vBox1.getChildren().get(1);
-        String[] ss = label.getText().split("\\r?\\n");
-        String content = "";
-        for (int i = 1; i < ss.length-1; i++) {
-            content += ss[i];
-        }
+        String content = label.getText();
 
 
         type.setText(content);
         //textArea.setEditable(true);
         confirm.setOnAction(event -> {
-            label.setText(ss[0] + "\n" + type.getText() +"\n"+ss[ss.length-1]);
+            label.setText(type.getText());
             for(Post post : Post.Posts)
                 if(post.getId() == Integer.parseInt(textFlow.getId())){
                     post.setContext(type.getText());
@@ -141,9 +151,8 @@ public class MessageOptions_Controller {
             title.getChildren().remove(decline);
         });
 
-        String finalContent = ss[0] +"\n" + content + "\n" + ss[ss.length-1];
         decline.setOnAction(event -> {
-            label.setText(finalContent);
+            label.setText(content);
             type.clear();
             title.setManaged(false);
             title.setVisible(false);
