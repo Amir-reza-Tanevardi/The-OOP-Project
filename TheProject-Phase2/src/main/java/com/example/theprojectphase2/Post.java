@@ -7,6 +7,7 @@ import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 //import oop.prj.model.DB.DBManager;
@@ -29,11 +30,11 @@ public class Post implements Comparable<Post>  {
 
 
       @DBField(name = "seen")
-      public HashMap<String, LocalDateTime> seens = new HashMap<>();
+      public LinkedHashMap<String, String> seens = new LinkedHashMap<>();
 
 
       @DBField(name = "likes")
-      public HashMap<String, LocalDateTime> likes = new HashMap<>();
+      public LinkedHashMap<String, String> likes = new LinkedHashMap<>();
 
       @DBField(name = "publishDate")
       public LocalDateTime publishDate;
@@ -193,22 +194,22 @@ public class Post implements Comparable<Post>  {
 
       }
 
-      public HashMap<String, LocalDateTime> getSeens() {
+      public LinkedHashMap<String, String> getSeens() {
             return seens;
       }
 
-      public void setSeens(HashMap<String, LocalDateTime> seens) {
+      public LinkedHashMap<String, String> getLikes() {
+            return likes;
+      }
+
+      public void setSeens(LinkedHashMap<String, String> seens) {
             this.seens = seens;
       }
 
-      public void setLikes(HashMap<String, LocalDateTime> likes) { this.likes = likes; }
+      public void setLikes(LinkedHashMap<String, String> likes) { this.likes = likes; }
 
       public void setPublishDate(LocalDateTime publishDate) {
             this.publishDate = publishDate;
-      }
-
-      public HashMap<String, LocalDateTime> getLikes() {
-            return likes;
       }
 
       public LocalDateTime getPublishDate() {

@@ -1,19 +1,11 @@
 package com.example.theprojectphase2;
 
-import com.sun.javafx.tk.FontLoader;
-import com.sun.javafx.tk.Toolkit;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableArray;
-import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -27,8 +19,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
@@ -42,8 +34,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -1056,7 +1046,9 @@ public class MainPageController {
                 for(Post post1 : Post.Posts)
                     if(post1.getId() == Integer.parseInt(container.getId())){
                         text2.setStyle("-fx-font-size: 12;");
-                        post.seens.put(String.valueOf(user.getID()),LocalDateTime.now());
+                        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                        String date = LocalDateTime.now().format(formatter);
+                        post.seens.put(String.valueOf(user.getID()),date);
                     }
 
             //System.out.println(boundsOnScene.getMinY());
@@ -1106,7 +1098,7 @@ public class MainPageController {
                 likeLogo.setImage(likeImage);
                 user.getLikedPosts().remove(post);
                 likes.setText(post.getLikers().size() + "  Likes");
-                post.getLikes().put(String.valueOf(user.getID()),LocalDateTime.now());
+                post.getLikes().remove(String.valueOf(user.getID()));
             }
 
             else{
@@ -1114,7 +1106,9 @@ public class MainPageController {
                 likeLogo.setImage(likeFillImage);
                 user.getLikedPosts().add(post);
                 likes.setText(post.getLikers().size() + "  Likes");
-                post.getLikes().remove(String.valueOf(user.getID()));
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String date = LocalDateTime.now().format(formatter);
+                post.getLikes().put(String.valueOf(user.getID()),date);
             }
 
         });
@@ -1208,10 +1202,26 @@ public class MainPageController {
         hBox.getChildren().add(comment_button);
         hBox.getChildren().add(like_button);
         hBox.getChildren().add(likes);
-        //here the views and like button will be added to hBox
 
-        //here up
         vBox.getChildren().add(hBox);
+
+        //Remember to turn the user.isNormal to !user.isNormal
+        if(user.isNormal && post.getOwner().getID() == user.getID()) {
+            Label views = new Label(post.getSeens().size() + " views");
+            views.setStyle("-fx-text-fill: rgb(150,150,150);" + "-fx-font-size: 13;");
+            views.setTranslateX(10);
+            vBox.getChildren().add(views);
+
+            views.setOnMouseClicked(event -> {
+                if(!post.getSeens().isEmpty())
+                ShowChart(event, post.getSeens());
+            });
+
+            likes.setOnMouseClicked(event -> {
+                if(!post.getLikes().isEmpty())
+                ShowChart(event, post.getLikes());
+            });
+        }
 
         //hyperlink.setTranslateY(textFlow.getHeight());
         //hyperlink.setId(String.valueOf(post.getId()));
@@ -1275,7 +1285,9 @@ public class MainPageController {
                for(Post post1 : Post.Posts)
                    if(post1.getId() == Integer.parseInt(container.getId())){
                        text2.setStyle("-fx-font-size: 15;");
-                       post.seens.put(String.valueOf(user.getID()),LocalDateTime.now());
+                       DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                       String date = LocalDateTime.now().format(formatter1);
+                       post.seens.put(String.valueOf(user.getID()),date);
                    }
 
             //System.out.println(boundsOnScene.getMinY());
@@ -1314,6 +1326,41 @@ public class MainPageController {
         });
 
 
+    }
+
+    public void ShowChart(MouseEvent event, LinkedHashMap<String, String> map){
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("SeenChart.fxml"));
+        Parent parent = null;
+        try {
+            parent = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Popup popup = new Popup();
+        if(isDark.getValue())
+            popup.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                popup.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                popup.getScene().getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
+        //Scene scene = new Scene(parent);
+
+
+        SeenChartController controller = loader.getController();
+        controller.initialize(map);
+
+        popup.getContent().add(parent);
+
+        popup.setAutoHide(true);
+
+        Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+        popup.show(MainStage);
     }
 
 
@@ -1364,7 +1411,9 @@ public class MainPageController {
                 likeLogo.setImage(likeImage);
                 user.getLikedPosts().remove(comment);
                 likes.setText(comment.getLikers().size() + "  Likes");
-                comment.getLikes().put(String.valueOf(user.getID()),LocalDateTime.now());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String date = LocalDateTime.now().format(formatter);
+                comment.getLikes().put(String.valueOf(user.getID()),date);
             }
 
             else{
