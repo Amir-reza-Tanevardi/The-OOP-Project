@@ -137,6 +137,9 @@ public class MainPageController {
                break;
            }
 
+        toggleSwitch = new ToggleSwitch();
+        isDark = toggleSwitch.switchOnProperty();
+
         //title.setManaged(false);
         title.setVisible(false);
 
@@ -161,7 +164,7 @@ public class MainPageController {
 
 
         main_label.setText(user.getUserName()+"\n"+user.getFollowers().size()+" Followers"+"\n"+user.getFollowed().size()+" Followings");
-        //main_image.setImage(user.image);
+        main_label.setStyle("-fx-font-size: 15;");
         main_image.setId(String.valueOf(user.getID()));
         main_image.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -222,7 +225,7 @@ public class MainPageController {
 
         search_button.setOnAction(event -> loadData(user));
 
-        toggleSwitch = new ToggleSwitch();
+
 
         toggleSwitch.setManaged(false);
         toggleSwitch.setDisable(true);
@@ -230,7 +233,6 @@ public class MainPageController {
 
         setting.getChildren().add(toggleSwitch);
         title.setStyle("-fx-background-color: rgb(180,216,225)");
-        isDark = toggleSwitch.switchOnProperty();
         isDark.addListener((observable, oldValue, newValue) -> {
             if(newValue) {
                 toggleSwitch.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
@@ -469,6 +471,19 @@ public class MainPageController {
         textFlow.setTranslateX(10);
         container.getChildren().add(textFlow);
 
+        container.setStyle("-fx-background-color: rgb(200,200,200)");
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue) {
+                toggleSwitch.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                container.setStyle("-fx-background-color: #373e43;");
+            }
+
+            else {
+                toggleSwitch.getScene().getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                container.setStyle("-fx-background-color: rgb(200,200,200)");
+            }
+        });
+
         return container;
     }
 
@@ -500,6 +515,7 @@ public class MainPageController {
             main_type.clear();
             main_type.setDisable(true);
             send_button.setDisable(true);
+            attachment.setDisable(true);
 
             for(Post post : newPosts){
                 loadPost(post);
@@ -532,6 +548,7 @@ public class MainPageController {
         main_type.clear();
         main_type.setDisable(true);
         send_button.setDisable(true);
+        attachment.setDisable(true);
 
         for(Post post : newPosts){
            loadPost(post);
@@ -559,6 +576,7 @@ public class MainPageController {
         main_type.clear();
         main_type.setPromptText("Add Comment");
         send_button.setDisable(false);
+        attachment.setDisable(false);
         send_button.setId(String.valueOf(hyperlink.getId()));
         for(Post post : Post.Posts)
             if(post.getId() == Integer.parseInt(hyperlink.getId())){
@@ -656,6 +674,7 @@ public class MainPageController {
         chat_box.setVisible(true);
         chat_box.setDisable(false);
         send_button.setDisable(false);
+        attachment.setDisable(false);
         isInGroup = false;
         isInPv = true;
 
@@ -690,6 +709,7 @@ public class MainPageController {
             chat_box.setVisible(true);
             chat_box.setDisable(false);
             send_button.setDisable(false);
+            attachment.setDisable(false);
 
             isInGroup = true;
             isInPv = false;
@@ -1420,6 +1440,7 @@ public class MainPageController {
             main_type.setDisable(false);
             attachment.setDisable(true);
             send_button.setDisable(false);
+            attachment.setDisable(false);
 
             int index = chat_box.getChildren().indexOf(container);
             ArrayList<Node> comment_containers = new ArrayList<>(chat_box.getChildren().subList(index+1, index + post.getComments().size() + 1));
@@ -1678,12 +1699,12 @@ public class MainPageController {
         else
             textFlow.setId(LocalDateTime.now().format(formatter));
 
-        Text text;
+        Label text;
         if(AllPosts.isEmpty())
-            text  = new Text(user1.getUserName() + "\n" + "No Chat Here");
+            text  = new Label(user1.getUserName() + "\n" + "No Chat Here");
 
         else
-            text  = new Text(user1.getUserName() + "\n" + AllPosts.get(AllPosts.size()-1).getContext());
+            text  = new Label(user1.getUserName() + "\n" + AllPosts.get(AllPosts.size()-1).getContext());
 
         textFlow.setTranslateY(-profileImage.getFitHeight()/2);
         container.getChildren().add(profileImage);
@@ -1712,6 +1733,19 @@ public class MainPageController {
 
         textFlow.setTranslateX(10);
         container.getChildren().add(textFlow);
+
+        container.setStyle("-fx-background-color: rgb(200,200,200)");
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue) {
+                toggleSwitch.getScene().getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                container.setStyle("-fx-background-color: #373e43;");
+            }
+
+            else {
+                toggleSwitch.getScene().getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+                container.setStyle("-fx-background-color: rgb(200,200,200)");
+            }
+        });
 
         return  container;
     }

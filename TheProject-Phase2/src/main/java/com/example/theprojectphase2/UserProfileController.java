@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
@@ -47,6 +48,9 @@ public class UserProfileController {
     @FXML
     ImageView image;
 
+    @FXML
+    AnchorPane top_title;
+
 
 
     User user;
@@ -54,6 +58,8 @@ public class UserProfileController {
     User us;
 
     Stage s;
+
+
 
     public void initialize(User u, User us1, Stage stage) {
         //Initializes the page
@@ -133,7 +139,6 @@ public class UserProfileController {
                 textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
                 textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE );
                 textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE );
-                textFlow.setStyle("-fx-background-color: rgb(255,255,255);");
                 followers_vbox.getChildren().add(textFlow);
             }
 
@@ -156,14 +161,11 @@ public class UserProfileController {
                 image.setFitWidth(60);
 
                 image.setId(String.valueOf(u.getID()));
-                image.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        try {
-                            ViewUserProfile(event);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                image.setOnMouseClicked(event -> {
+                    try {
+                        ViewUserProfile(event);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 });
 
@@ -172,7 +174,6 @@ public class UserProfileController {
                 textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
                 textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE );
                 textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE );
-                textFlow.setStyle("-fx-background-color: rgb(255,255,255);");
                 following_vbox.getChildren().add(textFlow);
             }
     }

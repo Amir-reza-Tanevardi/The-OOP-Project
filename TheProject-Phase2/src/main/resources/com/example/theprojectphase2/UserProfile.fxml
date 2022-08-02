@@ -7,36 +7,41 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="683.0" prefWidth="311.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.theprojectphase2.UserProfileController">
    <content>
       <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="678.0" prefWidth="309.0">
          <top>
-            <AnchorPane prefHeight="470.0" prefWidth="310.0" BorderPane.alignment="CENTER">
+            <AnchorPane fx:id="top_title" prefHeight="211.0" prefWidth="310.0" style="-fx-background-color: rgb(0,172,238);" BorderPane.alignment="CENTER">
                <children>
-                  <Label fx:id="UserName_label" layoutX="155.0" layoutY="72.0" prefHeight="36.0" prefWidth="127.0" />
-                  <ImageView fx:id="image" fitHeight="86.0" fitWidth="90.0" focusTraversable="true" layoutX="56.0" layoutY="58.0" pickOnBounds="true" smooth="false">
+                  <Label fx:id="UserName_label" layoutX="181.0" layoutY="72.0" prefHeight="44.0" prefWidth="101.0">
+                     <font>
+                        <Font size="27.0" />
+                     </font></Label>
+                  <ImageView fx:id="image" fitHeight="109.0" fitWidth="120.0" focusTraversable="true" layoutX="43.0" layoutY="54.0" pickOnBounds="true" smooth="false">
                      <viewport>
                         <Rectangle2D />
                      </viewport>
                   </ImageView>
-                  <Label layoutX="56.0" layoutY="282.0" text="Bio:" />
-                  <Label layoutX="43.0" layoutY="438.0" text="Members:" />
-                  <Button fx:id="block_button" layoutX="43.0" layoutY="371.0" mnemonicParsing="false" text="Block User" />
-                  <Label fx:id="Bio_label" layoutX="56.0" layoutY="311.0" prefHeight="18.0" prefWidth="215.0" />
-                  <Button fx:id="follow_button" layoutX="54.0" layoutY="222.0" mnemonicParsing="false" onAction="#follow" text="follow" />
-                  <TextField fx:id="searchBar" layoutX="138.0" layoutY="434.0" promptText="Search Members:" />
-                  <Button layoutX="257.0" layoutY="434.0" mnemonicParsing="false" onAction="#SearchUsers" prefHeight="15.0" prefWidth="30.0" text="Button" />
-                  <Button layoutX="213.0" layoutY="144.0" mnemonicParsing="false" onAction="#load_PV" text="Button" />
+                  <Button layoutX="224.0" layoutY="142.0" mnemonicParsing="false" onAction="#load_PV" prefHeight="54.0" prefWidth="57.0" style="-fx-background-radius: 190;">
+                     <graphic>
+                        <ImageView fitHeight="41.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@message.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
                </children>
             </AnchorPane>
          </top>
          <bottom>
-            <TabPane BorderPane.alignment="CENTER">
+            <TabPane prefHeight="235.0" prefWidth="310.0" BorderPane.alignment="CENTER">
                <tabs>
                   <Tab closable="false" text="Followers">
                      <content>
@@ -51,6 +56,35 @@
                </tabs>
             </TabPane>
          </bottom>
+         <center>
+            <AnchorPane prefHeight="208.0" prefWidth="310.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label layoutX="31.0" layoutY="50.0" text="Bio:">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="18.0" layoutY="201.0" text="Followers/Following">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="Bio_label" layoutX="31.0" layoutY="78.0" prefHeight="72.0" prefWidth="215.0" />
+                  <TextField fx:id="searchBar" layoutX="147.0" layoutY="198.0" promptText="Search Members:" />
+                  <Button layoutX="274.0" layoutY="198.0" mnemonicParsing="false" onAction="#SearchUsers" prefHeight="15.0" prefWidth="30.0" />
+                  <ImageView fitHeight="16.0" fitWidth="25.0" layoutX="280.0" layoutY="203.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@search.png" />
+                     </image>
+                  </ImageView>
+                  <Button fx:id="follow_button" layoutX="222.0" layoutY="14.0" mnemonicParsing="false" onAction="#follow" style="-fx-background-color: transparent;" text="follow" textFill="#00acee">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Button>
+               </children>
+            </AnchorPane>
+         </center>
       </BorderPane>
    </content>
 </ScrollPane>

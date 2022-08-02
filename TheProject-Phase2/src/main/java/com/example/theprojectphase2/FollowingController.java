@@ -26,6 +26,7 @@ public class FollowingController {
 
     Stage s;
 
+
     public void initialize(User u, Stage stage){
         for(User us : User.Users)
             if(us.getID() == u.getID())
@@ -93,8 +94,6 @@ public class FollowingController {
             }
         });
 
-
-        container.setStyle("-fx-background-color: rgb(255,255,255);");
 
         container.setPrefHeight(60);
         container.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
