@@ -28,12 +28,15 @@ import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.joda.time.format.DateTimeFormat;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -48,6 +51,12 @@ public class MainPageController {
 
     @FXML
     VBox group_vbox;
+
+    @FXML
+    VBox group_vbox1;
+
+    @FXML
+    VBox pv_vbox;
 
     @FXML
     ButtonBar button_bar;
@@ -106,8 +115,12 @@ public class MainPageController {
     @FXML
     Button attachment;
 
+    @FXML
+    Button discover_people;
+
     boolean isInGroup;
     boolean isInPv;
+    ToggleSwitch toggleSwitch;
 
     SimpleBooleanProperty isDark;
 
@@ -128,10 +141,21 @@ public class MainPageController {
         title.setVisible(false);
 
         title_image.setOnMouseClicked(event -> {
-            try {
-                ViewGroupProfile(event);
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            if(isInGroup && !isInPv){
+                try {
+                    ViewGroupProfile(event);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            else if(!isInGroup && isInPv){
+                try {
+                    ViewUserProfile(event);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -177,6 +201,7 @@ public class MainPageController {
         followerButton.setManaged(false);
         followingButton.setManaged(false);
         newGroup_button.setManaged(false);
+        discover_people.setManaged(false);
 
         setting.setDisable(true);
         main_image.setDisable(true);
@@ -185,6 +210,7 @@ public class MainPageController {
         followerButton.setDisable(true);
         followingButton.setDisable(true);
         newGroup_button.setDisable(true);
+        discover_people.setDisable(true);
 
         myposts_button.setVisible(false);
         followerButton.setVisible(false);
@@ -192,10 +218,15 @@ public class MainPageController {
         main_label.setVisible(false);
         main_image.setVisible(false);
         newGroup_button.setVisible(false);
+        discover_people.setVisible(false);
 
         search_button.setOnAction(event -> loadData(user));
 
-        ToggleSwitch toggleSwitch = new ToggleSwitch();
+        toggleSwitch = new ToggleSwitch();
+
+        toggleSwitch.setManaged(false);
+        toggleSwitch.setDisable(true);
+        toggleSwitch.setVisible(false);
 
         setting.getChildren().add(toggleSwitch);
         title.setStyle("-fx-background-color: rgb(180,216,225)");
@@ -220,68 +251,26 @@ public class MainPageController {
     private void loadData (User u) {
         //loads date when loging in
 
-        welcome_title.setText("Welcome " + u.UserName + "  "+ u.getID());
+        welcome_title.setText("Welcome " + u.UserName);
         group_vbox.getChildren().clear();
+        group_vbox1.getChildren().clear();
+        pv_vbox.getChildren().clear();
+
+        ArrayList<TextFlow> pvs = new ArrayList<>();
+        ArrayList<TextFlow> groups = new ArrayList<>();
+        ArrayList<TextFlow> chats = new ArrayList<>();
 
         if (search_field.getText().isEmpty()){
 
             for (Group g : u.getGroups()) {
-                System.out.println(g.getGroupName());
-                TextFlow textFlow = new TextFlow();
 
-                TextFlow container = new TextFlow();
+                TextFlow container = loadGroup(g);
+                TextFlow container1 = loadGroup(g);
 
-                ImageView profileImage = new ImageView(g.getImage());
-                Circle circle = new Circle(20);
-                circle.setTranslateX(30);
-                circle.setTranslateY(30);
-                profileImage.setClip(circle);
-                profileImage.setId(String.valueOf(g.getID()));
-                profileImage.setFitWidth(50);
-                profileImage.setFitHeight(50);
-                profileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        try {
-                            ViewGroupProfile(event);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                Label text;
-                if (g.getPosts().isEmpty())
-                    text = new Label(g.getGroupName() + "\n" + "No Chat Here");
-
-                else
-                    text = new Label(g.getGroupName() + "\n" + g.getPosts().get(g.getPosts().size() - 1).getContext());
-
-                textFlow.setTranslateY(-profileImage.getFitHeight() / 2);
-                container.getChildren().add(profileImage);
-                textFlow.getChildren().add(text);
-
-                container.setId(String.valueOf(g.getID()));
-                textFlow.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
-                textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
-                textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE);
-                textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
-
-
-                container.setOnMouseClicked(this::ChooseGroupChat);
-
-
-                //container.setStyle("-fx-background-color: rgb(255,255,255);");
-
-                container.setPrefHeight(60);
-                container.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
-                container.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
-                container.setMinHeight(TextFlow.USE_PREF_SIZE);
-                container.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
-
-                textFlow.setTranslateX(10);
-                container.getChildren().add(textFlow);
-                group_vbox.getChildren().add(container);
+                //group_vbox.getChildren().add(container);
+                //group_vbox1.getChildren().add(container);
+                groups.add(container);
+                chats.add(container1);
 
 
             }
@@ -289,16 +278,22 @@ public class MainPageController {
             ArrayList<User> messengers = new ArrayList<>();
 
             for (Post post : user.getReceivedMessages())
-            messengers.add(post.getOwner());
+              if(!messengers.contains(post.getOwner()))
+               messengers.add(post.getOwner());
 
            for (User uu : User.Users) {
               for (Post p : uu.getReceivedMessages())
-                   if (p.getOwner().getID() == user.getID())
+                   if (p.getOwner().getID() == user.getID() && !messengers.contains(uu))
                     messengers.add(uu);
            }
 
            for (User user1 : messengers) {
-            loadPV(user1);
+               TextFlow container = loadPV(user1);
+               TextFlow container1 = loadPV(user1);
+               //group_vbox.getChildren().add(container);
+               pvs.add(container);
+               chats.add(container1);
+
            }
 
       }
@@ -307,72 +302,175 @@ public class MainPageController {
 
             for (Group g : u.getGroups()) {
                 if(g.getGroupName().contains(search_field.getText())) {
-                    TextFlow textFlow = new TextFlow();
-
-                    TextFlow container = new TextFlow();
-
-                    ImageView profileImage = new ImageView(g.getImage());
-                    Circle circle = new Circle(20);
-                    circle.setTranslateX(30);
-                    circle.setTranslateY(30);
-                    profileImage.setClip(circle);
-                    profileImage.setId(String.valueOf(g.getID()));
-                    profileImage.setFitWidth(50);
-                    profileImage.setFitHeight(50);
-                    profileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent event) {
-                            try {
-                                ViewGroupProfile(event);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-                    Text text;
-                    if (g.getPosts().isEmpty())
-                        text = new Text(g.getGroupName() + "\n" + "No Chat Here");
-
-                    else
-                        text = new Text(g.getGroupName() + "\n" + g.getPosts().get(g.getPosts().size() - 1).getContext());
-
-                    textFlow.setTranslateY(-profileImage.getFitHeight() / 2);
-                    container.getChildren().add(profileImage);
-                    textFlow.getChildren().add(text);
-
-                    container.setId(String.valueOf(g.getID()));
-                    textFlow.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
-                    textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
-                    textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE);
-                    textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
-
-
-                    container.setOnMouseClicked(this::ChooseGroupChat);
-
-
-                    container.setPrefHeight(60);
-                    container.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
-                    container.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
-                    container.setMinHeight(TextFlow.USE_PREF_SIZE);
-                    container.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
-
-                    textFlow.setTranslateX(10);
-                    container.getChildren().add(textFlow);
-                    group_vbox.getChildren().add(container);
+                   TextFlow container = loadGroup(g);
+                   TextFlow container1 = loadGroup(g);
+                    //group_vbox.getChildren().add(container);
+                    //group_vbox1.getChildren().add(container);
+                    chats.add(container);
+                    groups.add(container1);
 
                 }
             }
 
             for (User user1 : User.Users) {
-                if(user1.getUserName().contains(search_field.getText()))
-                  loadPV(user1);
+                if(user1.getUserName().contains(search_field.getText())) {
+                    TextFlow container = loadPV(user1);
+                    TextFlow container1 = loadPV(user1);
+                    //group_vbox.getChildren().add(container);
+                    pvs.add(container);
+                    chats.add(container1);
+                }
             }
 
+            search_field.setText("");
         }
+
+        Collections.sort(chats, (o1, o2) -> {
+            if (o1.getChildren().get(1).getId() == null || o2.getChildren().get(1).getId() == null)
+                return 0;
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            int ans = 0;
+            try {
+                ans =  sdf.parse(o1.getChildren().get(1).getId()).compareTo(sdf.parse(o2.getChildren().get(1).getId()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            return ans;
+        });
+
+        Collections.sort(pvs, (o1, o2) -> {
+            if (o1.getChildren().get(1).getId() == null || o2.getChildren().get(1).getId() == null)
+                return 0;
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            int ans = 0;
+            try {
+                ans =  sdf.parse(o1.getChildren().get(1).getId()).compareTo(sdf.parse(o2.getChildren().get(1).getId()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            return ans;
+        });
+
+        Collections.sort(groups, (o1, o2) -> {
+            if (o1.getChildren().get(1).getId() == null || o2.getChildren().get(1).getId() == null)
+                return 0;
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            int ans = 0;
+            try {
+                ans =  sdf.parse(o1.getChildren().get(1).getId()).compareTo(sdf.parse(o2.getChildren().get(1).getId()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            return ans;
+        });
+
+        Collections.reverse(groups);
+        Collections.reverse(pvs);
+        Collections.reverse(chats);
+
+        for(TextFlow t : chats)
+            group_vbox.getChildren().add(t);
+
+
+        for(TextFlow t : pvs)
+            pv_vbox.getChildren().add(t);
+
+
+        for (TextFlow t : groups)
+            group_vbox1.getChildren().add(t);
 
     }
 
+    public TextFlow loadGroup(Group g){
+        TextFlow textFlow = new TextFlow();
+
+        TextFlow container = new TextFlow();
+
+        ImageView profileImage = new ImageView(g.getImage());
+        Circle circle = new Circle(20);
+        circle.setTranslateX(30);
+        circle.setTranslateY(30);
+        profileImage.setClip(circle);
+        profileImage.setId(String.valueOf(g.getID()));
+        profileImage.setFitWidth(50);
+        profileImage.setFitHeight(50);
+        profileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                try {
+                    ViewGroupProfile(event);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        Label text;
+        if (g.getPosts().isEmpty())
+            text = new Label(g.getGroupName() + "\n" + "No Chat Here");
+
+        else {
+            if(g.getPosts().get(g.getPosts().size()-1).getSeens().containsKey(String.valueOf(user.getID()))){
+                if (g.getPosts().get(g.getPosts().size() - 1).getContext().length() > 10)
+                    text = new Label(g.getGroupName() + "\n" + g.getPosts().get(g.getPosts().size() - 1).getContext().substring(0, 10) + "...");
+
+                else
+                    text = new Label(g.getGroupName() + "\n" + g.getPosts().get(g.getPosts().size() - 1).getContext());
+            }
+
+            else {
+                if (g.getPosts().get(g.getPosts().size() - 1).getContext().length() > 10) {
+                    text = new Label(g.getGroupName() + "\n" + g.getPosts().get(g.getPosts().size() - 1).getContext().substring(0, 10) + "...");
+
+                }
+
+                else
+                    text = new Label(g.getGroupName() + "\n" + g.getPosts().get(g.getPosts().size() - 1).getContext());
+
+                text.setStyle("-fx-font-weight: bold;");
+            }
+        }
+
+        textFlow.setTranslateY(-profileImage.getFitHeight() / 2);
+        container.getChildren().add(profileImage);
+        textFlow.getChildren().add(text);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        if(!g.getPosts().isEmpty())
+            textFlow.setId(g.getPosts().get(g.getPosts().size()-1).getPublishDate().format(formatter));
+
+        else
+            textFlow.setId(LocalDateTime.now().format(formatter));
+
+        container.setId(String.valueOf(g.getID()));
+        textFlow.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
+        textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
+        textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE);
+        textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
+
+
+        container.setOnMouseClicked(this::ChooseGroupChat);
+
+
+        //container.setStyle("-fx-background-color: rgb(255,255,255);");
+
+        container.setPrefHeight(60);
+        container.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
+        container.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
+        container.setMinHeight(TextFlow.USE_PREF_SIZE);
+        container.setMaxHeight(TextFlow.USE_COMPUTED_SIZE);
+
+        textFlow.setTranslateX(10);
+        container.getChildren().add(textFlow);
+
+        return container;
+    }
 
 
     @FXML
@@ -409,7 +507,7 @@ public class MainPageController {
 
         }
 
-        else if(the_list.getSelectionModel().getSelectedItem().getText().equals("Groups")){
+        else {
             loadData(user);
         }
     }
@@ -525,6 +623,8 @@ public class MainPageController {
         followerButton.setManaged(!followerButton.isManaged());
         followingButton.setManaged(!followingButton.isManaged());
         newGroup_button.setManaged(!newGroup_button.isManaged());
+        discover_people.setManaged(!discover_people.isManaged());
+        toggleSwitch.setManaged(!toggleSwitch.isManaged());
 
         setting.setDisable(!setting.isDisable());
         main_image.setDisable(!main_image.isDisable());
@@ -533,6 +633,8 @@ public class MainPageController {
         followerButton.setDisable(!followerButton.isDisable());
         followingButton.setDisable(!followingButton.isDisable());
         newGroup_button.setDisable(!newGroup_button.isDisable());
+        discover_people.setDisable(!discover_people.isDisable());
+        toggleSwitch.setDisable(!toggleSwitch.isDisable());
 
         myposts_button.setVisible(!myposts_button.isVisible());
         followerButton.setVisible(!followerButton.isVisible());
@@ -540,6 +642,8 @@ public class MainPageController {
         main_label.setVisible(!main_label.isVisible());
         main_image.setVisible(!main_image.isVisible());
         newGroup_button.setVisible(!newGroup_button.isVisible());
+        discover_people.setVisible(!discover_people.isVisible());
+        toggleSwitch.setVisible(!toggleSwitch.isVisible());
         //setting.setVisible(true);
 
     }
@@ -1042,17 +1146,17 @@ public class MainPageController {
         container.localToSceneTransformProperty().addListener( ( observable, oldValue, newValue ) ->
         {
             final Bounds boundsOnScene = container.localToScene( container.getBoundsInLocal() );
-            if(boundsOnScene.getMinY() > 0 && boundsOnScene.getMinY() < vBox.getHeight() && !watchers.contains(user))
+
+            if(boundsOnScene.getMinY() > 0  && !watchers.contains(user))
                 for(Post post1 : Post.Posts)
                     if(post1.getId() == Integer.parseInt(container.getId())){
                         text2.setStyle("-fx-font-size: 12;");
                         DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                        String date = LocalDateTime.now().format(formatter);
+                        String date = LocalDateTime.now().format(formatter1);
                         post.seens.put(String.valueOf(user.getID()),date);
                     }
 
-            //System.out.println(boundsOnScene.getMinY());
-            //System.out.println(vBox.getHeight());
+            System.out.println(boundsOnScene.getMinY());
         } );
 
 
@@ -1123,14 +1227,11 @@ public class MainPageController {
         profileImage.setId(String.valueOf(post.getOwner().getID()));
         profileImage.setFitHeight(50);
         profileImage.setFitWidth(50);
-        profileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                try {
-                    ViewUserProfile(event);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        profileImage.setOnMouseClicked(event -> {
+            try {
+                ViewUserProfile(event);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
 
@@ -1217,15 +1318,21 @@ public class MainPageController {
                 ShowChart(event, post.getSeens());
             });
 
-            likes.setOnMouseClicked(event -> {
-                if(!post.getLikes().isEmpty())
-                ShowChart(event, post.getLikes());
-            });
         }
 
-        //hyperlink.setTranslateY(textFlow.getHeight());
-        //hyperlink.setId(String.valueOf(post.getId()));
-        //hyperlink.setOnMouseClicked(this::ViewComments);
+       likes.setOnMouseClicked(event -> {
+           if(event.getButton() == MouseButton.PRIMARY) {
+               try {
+                   ShowLikers(post);
+               } catch (IOException e) {
+                   e.printStackTrace();
+               }
+           }
+
+           if(!post.getLikes().isEmpty() && event.getButton() == MouseButton.MIDDLE && user.isNormal && post.getOwner().getID() == user.getID())
+               ShowChart(event, post.getLikes());
+       });
+
         textFlow.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -1281,7 +1388,7 @@ public class MainPageController {
         container.localToSceneTransformProperty().addListener( ( observable, oldValue, newValue ) ->
         {
             final Bounds boundsOnScene = container.localToScene( container.getBoundsInLocal() );
-            if(boundsOnScene.getMinY() > 0 && boundsOnScene.getMinY() < vBox.getHeight() && !watchers.contains(user))
+            if(boundsOnScene.getMinY() > 0 && !watchers.contains(user))
                for(Post post1 : Post.Posts)
                    if(post1.getId() == Integer.parseInt(container.getId())){
                        text2.setStyle("-fx-font-size: 15;");
@@ -1290,7 +1397,7 @@ public class MainPageController {
                        post.seens.put(String.valueOf(user.getID()),date);
                    }
 
-            //System.out.println(boundsOnScene.getMinY());
+            System.out.println(boundsOnScene.getMinY());
             //System.out.println(vBox.getHeight());
         } );
 
@@ -1527,8 +1634,7 @@ public class MainPageController {
     }
 
 
-    public void loadPV(User user1){
-
+    public TextFlow loadPV(User user1){
         ArrayList<Post> AllPosts = new ArrayList<>();
         for (Post post1 : user.getReceivedMessages())
             if(post1.getOwner().getID() == user1.getID())
@@ -1540,6 +1646,7 @@ public class MainPageController {
 
         Collections.sort(AllPosts);
         //Collections.reverse(AllPosts);
+
 
 
         TextFlow textFlow = new TextFlow();
@@ -1564,6 +1671,12 @@ public class MainPageController {
                 }
             }
         });
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        if(!AllPosts.isEmpty())
+            textFlow.setId(AllPosts.get(AllPosts.size()-1).getPublishDate().format(formatter));
+        else
+            textFlow.setId(LocalDateTime.now().format(formatter));
 
         Text text;
         if(AllPosts.isEmpty())
@@ -1599,7 +1712,8 @@ public class MainPageController {
 
         textFlow.setTranslateX(10);
         container.getChildren().add(textFlow);
-        group_vbox.getChildren().add(container);
+
+        return  container;
     }
 
     public void ShowFollowers(ActionEvent event) throws IOException {
@@ -1620,7 +1734,9 @@ public class MainPageController {
 
 
         FollowersController controller = loader.getController();
-        controller.initialize(user);
+
+        Node node = (Node) event.getSource();
+        controller.initialize(user, (Stage) node.getScene().getWindow());
 
         Stage MainStage = new Stage();
         MainStage.setResizable(false);
@@ -1648,11 +1764,68 @@ public class MainPageController {
         });
 
         FollowingController controller = loader.getController();
-        controller.initialize(user);
+        Node node = (Node) event.getSource();
+        controller.initialize(user, (Stage) node.getScene().getWindow());
 
         Stage MainStage = new Stage();
         MainStage.setResizable(false);
         MainStage.setTitle("Followers");
+
+        MainStage.setScene(scene);
+        MainStage.show();
+    }
+
+    public void ShowDiscoverPeople(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("DiscoverPeople.fxml"));
+        Parent parent = loader.load();
+
+        Scene scene = new Scene(parent);
+        if(isDark.getValue())
+            scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                scene.getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
+
+
+        DiscoverPeopleController controller = loader.getController();
+        controller.initialize(user);
+
+        Stage MainStage = new Stage();
+        MainStage.setResizable(false);
+        MainStage.setTitle("Discover People");
+
+        MainStage.setScene(scene);
+        MainStage.show();
+    }
+
+    public void ShowLikers(Post post) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("TheLikersList.fxml"));
+        Parent parent = loader.load();
+
+        Scene scene = new Scene(parent);
+        if(isDark.getValue())
+            scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        isDark.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                scene.getRoot().getStylesheets().add(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+
+            else
+                scene.getRoot().getStylesheets().remove(Objects.requireNonNull(getClass().getResource("DarkMode.css")).toString());
+        });
+
+
+        TheLikersList_Controller controller = loader.getController();
+        controller.initialize(user, post);
+
+        Stage MainStage = new Stage();
+        MainStage.setResizable(false);
+        MainStage.setTitle("Likers");
 
         MainStage.setScene(scene);
         MainStage.show();

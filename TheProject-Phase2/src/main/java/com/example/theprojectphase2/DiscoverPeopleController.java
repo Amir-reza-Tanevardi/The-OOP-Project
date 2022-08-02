@@ -20,26 +20,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class TheLikersList_Controller {
+public class DiscoverPeopleController {
 
     @FXML
     VBox vbox;
 
     User user;
 
-    Post post;
-
-    public void initialize(User u, Post p){
+    public void initialize(User u){
         for(User us : User.Users)
             if(us.getID() == u.getID())
                 user=us;
 
-        for(Post po : Post.Posts)
-            if(po.getId() == p.getId())
-                post = po;
-
-        for(User f : post.getLikers())
-            loadPV(f);
+        for(User f : user.getFollowed())
+            for(User f1 : f.getFollowed())
+              if(!user.getFollowers().contains(f1))
+                  loadPV(f1);
 
     }
 
@@ -61,6 +57,8 @@ public class TheLikersList_Controller {
         profileImage.setFitWidth(50);
         profileImage.setFitHeight(50);
 
+        Button button = new Button("Follow");
+        button.setStyle("-fx-background-color: transparent;" + "-fx-text-fill: #1e74c6");
 
 
         Text text;
@@ -77,6 +75,21 @@ public class TheLikersList_Controller {
         textFlow.setMinHeight(TextFlow.USE_COMPUTED_SIZE );
         textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE );
 
+        button.setOnAction(event -> {
+            if(!user.getFollowers().contains(user1)) {
+                user1.getFollowers().add(user);
+                user.getFollowed().add(user1);
+
+                button.setText("Unfollow");
+            }
+
+            else {
+                user.getFollowers().remove(user1);
+                user1.getFollowed().remove(user);
+
+                button.setText("Follow");
+            }
+        });
 
 
         container.setOnMouseClicked(event -> {
@@ -97,6 +110,8 @@ public class TheLikersList_Controller {
         container.setMaxHeight(TextFlow.USE_COMPUTED_SIZE );
 
         textFlow.setTranslateX(10);
+        textFlow.getChildren().add(button);
+        button.setTranslateX(40);
         container.getChildren().add(textFlow);
         vbox.getChildren().add(container);
     }

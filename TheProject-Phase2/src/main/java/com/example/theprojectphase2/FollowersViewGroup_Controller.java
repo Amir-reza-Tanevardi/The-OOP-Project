@@ -79,6 +79,17 @@ public class FollowersViewGroup_Controller {
         profileImage.setFitWidth(50);
         profileImage.setFitHeight(50);
 
+        profileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                try {
+                    ViewUserProfile(event);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
 
         Text text;
         text  = new Text(user1.getUserName());
@@ -95,13 +106,6 @@ public class FollowersViewGroup_Controller {
         textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE );
 
 
-        profileImage.setOnMouseClicked(event -> {
-            try {
-                ViewUserProfile(event);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
 
         container.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -111,7 +115,7 @@ public class FollowersViewGroup_Controller {
         });
 
 
-        container.setStyle("-fx-background-color: rgb(255,255,255);");
+        //container.setStyle("-fx-background-color: rgb(255,255,255);");
 
         container.setPrefHeight(60);
         container.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
@@ -135,7 +139,7 @@ public class FollowersViewGroup_Controller {
         UserProfileController controller = loader.getController();
         for(User u : User.Users)
             if(u.getID() == Integer.parseInt(view.getId()))
-                controller.initialize(u,us, (Stage) view.getScene().getWindow());
+                controller.initialize(u,us, s);
 
         Stage MainStage = new Stage();
         MainStage.setResizable(false);

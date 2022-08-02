@@ -23,7 +23,7 @@
                      <content>
                         <TabPane fx:id="the_list" onMouseClicked="#setChat" prefHeight="1000.0" prefWidth="198.0" rotateGraphic="true" tabClosingPolicy="UNAVAILABLE">
                           <tabs>
-                              <Tab text="Groups">
+                              <Tab text="Chat">
                                  <content>
                                     <ScrollPane fitToHeight="true" fitToWidth="true">
                                        <content>
@@ -37,6 +37,24 @@
                                     <ScrollPane fitToHeight="true" fitToWidth="true">
                                        <content>
                                           <VBox prefHeight="469.0" prefWidth="202.0" spacing="40.0" />
+                                       </content>
+                                    </ScrollPane>
+                                 </content>
+                              </Tab>
+                              <Tab text="Groups">
+                                 <content>
+                                    <ScrollPane fitToHeight="true" fitToWidth="true">
+                                       <content>
+                                          <VBox fx:id="group_vbox1" prefHeight="467.0" prefWidth="201.0" spacing="5.0" />
+                                       </content>
+                                    </ScrollPane>
+                                 </content>
+                              </Tab>
+                              <Tab text="PV">
+                                 <content>
+                                    <ScrollPane fitToHeight="true" fitToWidth="true">
+                                       <content>
+                                          <VBox fx:id="pv_vbox" prefHeight="467.0" prefWidth="201.0" spacing="5.0" />
                                        </content>
                                     </ScrollPane>
                                  </content>
@@ -114,6 +132,15 @@
                         </ImageView>
                      </graphic>
                   </Button>
+                  <Button fx:id="discover_people" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#ShowDiscoverPeople" prefHeight="36.0" prefWidth="171.0" style="-fx-background-color: transparent;" text="DISCOVER PEOPLE">
+                     <graphic>
+                        <ImageView fitHeight="31.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@discover-people.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
                </children>
             </VBox>
          </left>
@@ -124,7 +151,7 @@
          <center>
             <ScrollPane fx:id="scroll_bar" fitToHeight="true" fitToWidth="true" prefHeight="594.0" prefWidth="678.0">
                <content>
-                  <VBox fx:id="chat_box" prefHeight="494.0" prefWidth="652.0" spacing="10.0">
+                  <VBox fx:id="chat_box" prefHeight="497.0" prefWidth="585.0" spacing="10.0">
                      <children>
                         <AnchorPane fx:id="title" minWidth="-Infinity" prefHeight="70.0" prefWidth="413.0">
                            <children>

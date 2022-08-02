@@ -93,13 +93,6 @@ public class FollowersViewnewGroup_Controller {
         textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE );
 
 
-        profileImage.setOnMouseClicked(event -> {
-            try {
-                ViewUserProfile(event);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
 
         container.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -120,27 +113,6 @@ public class FollowersViewnewGroup_Controller {
         textFlow.setTranslateX(10);
         container.getChildren().add(textFlow);
         vbox.getChildren().add(container);
-    }
-
-    public void ViewUserProfile(MouseEvent event) throws IOException {
-        ImageView view = (ImageView) event.getSource();
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("UserProfile.fxml"));
-        Parent parent = loader.load();
-
-        Scene scene = new Scene(parent);
-
-        UserProfileController controller = loader.getController();
-        for(User u : User.Users)
-            if(u.getID() == Integer.parseInt(view.getId()))
-                controller.initialize(u,us, (Stage) view.getScene().getWindow());
-
-        Stage MainStage = new Stage();
-        MainStage.setResizable(false);
-        MainStage.setTitle("User Profile");
-
-        MainStage.setScene(scene);
-        MainStage.show();
     }
 
     public void Select(TextFlow textFlow){

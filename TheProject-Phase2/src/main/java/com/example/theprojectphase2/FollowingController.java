@@ -24,13 +24,17 @@ public class FollowingController {
 
     User user;
 
-    public void initialize(User u){
+    Stage s;
+
+    public void initialize(User u, Stage stage){
         for(User us : User.Users)
             if(us.getID() == u.getID())
                 user=us;
 
         for(User f : user.getFollowed())
             loadPV(f);
+
+        s = stage;
 
     }
 
@@ -114,7 +118,7 @@ public class FollowingController {
         UserProfileController controller = loader.getController();
         for(User u : User.Users)
             if(u.getID() == Integer.parseInt(view.getId()))
-                controller.initialize(u,user, (Stage) view.getScene().getWindow());
+                controller.initialize(u,user, s);
 
         Stage MainStage = new Stage();
         MainStage.setResizable(false);
