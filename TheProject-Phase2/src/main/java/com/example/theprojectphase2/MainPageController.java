@@ -745,9 +745,17 @@ public class MainPageController {
 
                     send_button.setId(String.valueOf(g.getID()));
 
+                    ArrayList<Post> posts = new ArrayList<>();
 
-                    if (!g.getPosts().isEmpty())
-                        for (Post post : g.getPosts()) {
+                    for(Post post : g.getPosts()) {
+                        posts.add(post);
+                        posts.addAll(post.getReplies());
+                    }
+
+                   Collections.sort(posts);
+
+                    if (!posts.isEmpty())
+                        for (Post post : posts) {
                             loadGroupMessage(post);
                             main_type.clear();
                         }
@@ -888,33 +896,77 @@ public class MainPageController {
 
        //This second part is about adding comments
         else if(!isInGroup){
-            System.out.println("add comment");
-           for (Post post : Post.Posts){
-               if(post.getId() == Integer.parseInt(send_button.getId())){
-                   if(!main_type.getText().isEmpty()){
-                       Comment comment = new Comment(main_type.getText(),user);
-                       comment.setOwnerId(user.getID());
 
-                       comment.setImageString("null");
+              if(!send_button.getId().contains("-")){
+                  for (Post post : Post.Posts) {
+                      if (post.getId() == Integer.parseInt(send_button.getId())) {
+                          if (!main_type.getText().isEmpty()) {
+                              Comment comment = new Comment(main_type.getText(), user);
+                              comment.setOwnerId(user.getID());
 
-                       DBManagerTester.insert(comment);
+                              comment.setImageString("null");
 
-                       post.getComments().add(comment);
-                       Comment.Comments.add(comment);
-                       main_type.clear();
+                              DBManagerTester.insert(comment);
 
-                       TextFlow t = loadComment(comment);
-                       t.setTranslateX(40);
-                       int index = chat_box.getChildren().indexOf(post);
-                       chat_box.getChildren().add(index + post.getComments().size() + 2,t);
-                   }
+                              post.getComments().add(comment);
+                              Comment.Comments.add(comment);
+                              main_type.clear();
 
-                   else{
-                       //Do Things if there is nothing in the main_type
-                       //It will be about editing a massage label
-                   }
-               }
-           }
+                              TextFlow t = loadComment(comment);
+                              t.setTranslateX(40);
+                              int index = 0;
+                              for (Node n : chat_box.getChildren())
+                                  if (n.getId().equals(String.valueOf(post.getId())))
+                                      index = chat_box.getChildren().indexOf(n);
+
+                              chat_box.getChildren().add(index + 1, t);
+                          } else {
+                              //Do Things if there is nothing in the main_type
+                              //It will be about editing a massage label
+                          }
+                      }
+                  }
+              }
+
+              else{
+                  for (Post post : Post.Posts) {
+                      if (post.getId() == Integer.parseInt(send_button.getId().substring(0,send_button.getId().indexOf("-")))) {
+                          if (!main_type.getText().isEmpty()) {
+                              Comment comment = new Comment(main_type.getText(), user);
+                              comment.setOwnerId(user.getID());
+
+                              comment.setImageString("null");
+
+                              DBManagerTester.insert(comment);
+
+                              System.out.println(send_button.getId());
+                              System.out.println(send_button.getId().substring(send_button.getId().indexOf("-")));
+
+                              for(Comment c : Comment.Comments)
+                                  if(c.getId() == Integer.parseInt(send_button.getId().substring(send_button.getId().indexOf("-")+1)))
+                                      c.getComments().add(comment);
+
+                              post.getComments().add(comment);
+                              Comment.Comments.add(comment);
+                              main_type.clear();
+
+                              TextFlow t = loadComment(comment);
+                              t.setTranslateX(40);
+                              int index = 0;
+                              for (Node n : chat_box.getChildren())
+                                  if (n.getId().equals(send_button.getId()))
+                                      index = chat_box.getChildren().indexOf(n);
+
+                              chat_box.getChildren().add(index + 1, t);
+                          }
+                          else {
+                              //Do Things if there is nothing in the main_type
+                              //It will be about editing a massage label
+                          }
+                      }
+                  }
+              }
+
 
 
         }
@@ -1016,12 +1068,14 @@ public class MainPageController {
 
         else if(s.equals("gmessages_options.fxml")){
             GmessagesOptions_Controller controller = loader.getController();
-            for (Post p : Post.Posts)
-                if (p.getId() == Integer.parseInt(textFlow.getId())) {
-                    controller.initialize(textFlow, p, user, main_type);
+              for (Post p : Post.Posts)
+                    if (p.getId() == Integer.parseInt(textFlow.getId())) {
+                        controller.initialize(textFlow, p, user, main_type, title , view);
 
-                    break;
-                }
+                        break;
+                    }
+
+
         }
 
         double x = textFlow.getScene().getWindow().getX();
@@ -1055,14 +1109,11 @@ public class MainPageController {
         profileImage.setId(String.valueOf(post.getOwner().getID()));
         profileImage.setFitHeight(50);
         profileImage.setFitWidth(50);
-        profileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                try {
-                    ViewUserProfile(event);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        profileImage.setOnMouseClicked(event -> {
+            try {
+                ViewUserProfile(event);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
 
@@ -1088,6 +1139,34 @@ public class MainPageController {
                     watchers.add(uu);
         }
 
+        vBox.getChildren().add(text1);
+        container.setId(String.valueOf(post.getId()));
+        textFlow.setId(String.valueOf(post.getId()));
+
+       for(Post p : Post.Posts)
+         if(p.getReplies().contains(post)){
+
+             Label label = new Label(p.getOwner().getUserName() +"\n"+ p.getContext());
+
+             if(p.getContext().length() > 7)
+                 label.setText(p.getOwner().getUserName() +"\n"+ p.getContext().substring(0,7) + "...");
+
+             label.setStyle("-fx-font-size: 12;" + "-fx-text-fill: rgb(150,150,150);");
+             label.setOpacity(0.7);
+
+
+             label.setOnMouseClicked(event -> {
+                 for(Node t : chat_box.getChildren())
+                     if(t.getId().equals(String.valueOf(p.getId()))){
+                         final Bounds boundsOnScene = t.localToScene( t.getBoundsInLocal() );
+                          scroll_bar.setVvalue(boundsOnScene.getMinY()/100);
+                     }
+             });
+
+             vBox.getChildren().add(label);
+
+         }
+
         Label text2 = new Label(post.getContext());
 
         if(!watchers.contains(user))
@@ -1101,7 +1180,7 @@ public class MainPageController {
         text1.setTranslateX(10);
         text2.setTranslateX(10);
 
-        vBox.getChildren().add(text1);
+
         vBox.getChildren().add(text2);
 
         Text t1 = new Text(text1.getText());
@@ -1116,8 +1195,6 @@ public class MainPageController {
 
 
 
-        textFlow.setId(String.valueOf(post.getId()));
-        container.setId(String.valueOf(post.getId()));
         //textFlow.setPrefWidth(text.getWidth()+100);
         textFlow.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
         textFlow.setMaxWidth(TextFlow.USE_COMPUTED_SIZE);
@@ -1185,7 +1262,7 @@ public class MainPageController {
         {
             final Bounds boundsOnScene = container.localToScene( container.getBoundsInLocal() );
 
-            if(boundsOnScene.getMinY() > 0  && !watchers.contains(user))
+            if(boundsOnScene.getMinY() > 0  && !watchers.contains(user) && !container.getId().contains("c"))
                 for(Post post1 : Post.Posts)
                     if(post1.getId() == Integer.parseInt(container.getId())){
                         text2.setStyle("-fx-font-size: 12;");
@@ -1194,7 +1271,15 @@ public class MainPageController {
                         post.seens.put(String.valueOf(user.getID()),date);
                     }
 
-            System.out.println(boundsOnScene.getMinY());
+            else if(boundsOnScene.getMinY() > 0  && !watchers.contains(user) && container.getId().contains("c"))
+                for(Comment comment : Comment.Comments)
+                    if(comment.getId() == Integer.parseInt(container.getId().substring(0,container.getId().length()-1))){
+                        text2.setStyle("-fx-font-size: 12;");
+                        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                        String date = LocalDateTime.now().format(formatter1);
+                        comment.seens.put(String.valueOf(user.getID()),date);
+                    }
+
         } );
 
 
@@ -1440,7 +1525,7 @@ public class MainPageController {
         } );
 
 
-
+        Collections.sort(post.getComments());
         for(Comment comment : post.getComments()){
             TextFlow t = loadComment(comment);
             chat_box.getChildren().add(t);
@@ -1461,18 +1546,20 @@ public class MainPageController {
             attachment.setDisable(false);
 
             int index = chat_box.getChildren().indexOf(container);
+
             ArrayList<Node> comment_containers = new ArrayList<>(chat_box.getChildren().subList(index+1, index + post.getComments().size() + 1));
 
 
-           for(Node t : comment_containers){
-               t.setVisible(!t.isVisible());
-               t.setManaged(!t.isManaged());
-               t.setDisable(!t.isDisable());
-           }
+            for(Node t : comment_containers){
+                t.setVisible(!t.isVisible());
+                t.setManaged(!t.isManaged());
+                t.setDisable(!t.isDisable());
+            }
         });
 
 
     }
+
 
     public void ShowChart(MouseEvent event, LinkedHashMap<String, String> map){
         FXMLLoader loader = new FXMLLoader();
@@ -1535,6 +1622,15 @@ public class MainPageController {
             }
         });
 
+        //for comment logo
+        Image commentImage = new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\comment.png");
+        ImageView commentLogo = new ImageView(commentImage);
+        Button comment_button = new Button("");
+        commentLogo.setFitWidth(commentImage.getWidth()/11);
+        commentLogo.setFitHeight(commentImage.getHeight()/11);
+        comment_button.setGraphic(commentLogo);
+        comment_button.setStyle("-fx-background-color: transparent;");
+
         //for like logo
         Image likeImage = new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\like.png");
         Image likeFillImage = new Image("D:\\University\\semester 2\\ProjDir\\TheProject-Phase2\\src\\main\\resources\\com\\example\\theprojectphase2\\like-fill.png");
@@ -1572,6 +1668,7 @@ public class MainPageController {
 
         });
 
+        hBox.getChildren().add(comment_button);
         hBox.getChildren().add(like_button);
         hBox.getChildren().add(likes);
 
@@ -1591,6 +1688,15 @@ public class MainPageController {
         text2.setTranslateX(10);
 
         vBox.getChildren().add(text1);
+
+        for(Comment c : Comment.Comments)
+            if(c.getComments().contains(comment)){
+                System.out.println("lol");
+                Label label = new Label(c.getOwner().getUserName()+"\n"+c.getContext());
+                vBox.getChildren().add(label);
+
+            }
+
         vBox.getChildren().add(text2);
         vBox.getChildren().add(hBox);
 
@@ -1668,6 +1774,44 @@ public class MainPageController {
             //System.out.println(boundsOnScene.getMinY());
             //System.out.println(vBox.getHeight());
         } );*/
+        /*
+        for(Comment comment1 : comment.getComments()){
+            TextFlow t = loadComment(comment1);
+            chat_box.getChildren().add(t);
+            t.setTranslateX(40);
+            t.setVisible(false);
+            t.setManaged(false);
+            t.setDisable(true);
+
+        }*/
+
+        int d =0;
+        for(Post p : Post.Posts)
+            if(p.getComments().contains(comment))
+                d = p.getId();
+
+        int finalD = d;
+        comment_button.setOnAction(event -> {
+            send_button.setId(finalD +"-"+comment.getId());
+            System.out.println("fuck yaeh");
+            isInPv = false;
+            isInGroup = false;
+            main_type.setDisable(false);
+            attachment.setDisable(true);
+            send_button.setDisable(false);
+            attachment.setDisable(false);
+            /*
+            int index = chat_box.getChildren().indexOf(container);
+
+            ArrayList<Node> comment_containers = new ArrayList<>(chat_box.getChildren().subList(index+1, index + comment.getComments().size() + 1));
+
+
+            for(Node t : comment_containers){
+                t.setVisible(!t.isVisible());
+                t.setManaged(!t.isManaged());
+                t.setDisable(!t.isDisable());
+            }*/
+        });
 
         return container;
     }
@@ -1901,6 +2045,8 @@ public class MainPageController {
 
         NewGroupController mainPageController = loader.getController();
         Group group = new Group("");
+        group.setOwner(user);
+        group.setOwnerId(user.getID());
         DBManagerTester.insert(group);
         mainPageController.initialize(user, group);
 

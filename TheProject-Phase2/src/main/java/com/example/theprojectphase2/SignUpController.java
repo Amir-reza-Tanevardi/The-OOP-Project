@@ -67,6 +67,12 @@ public class SignUpController {
     ObservableList<String> genderList = FXCollections.observableArrayList("Male","Female");
     ObservableList<String> typeList = FXCollections.observableArrayList("Normal","Business");
 
+    public void initialize(){
+        gender_choose.setItems(genderList);
+        type_choose.setItems(typeList);
+    }
+
+
     @FXML
     private void BackToLogIn(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
@@ -84,9 +90,6 @@ public class SignUpController {
 
     @FXML
     private void DoSignUp(ActionEvent event) throws SQLException, IOException {
-        gender_choose.setItems(genderList);
-        type_choose.setItems(typeList);
-
 
         String s1 = username_text.getText();
 
@@ -160,10 +163,10 @@ public class SignUpController {
                     if(!bio_text.getText().isEmpty()) user.setBio(bio_text.getText());
                     else user.setBio("");
 
-                    if (gender_choose.getValue().equals("male"))
+                    if (gender_choose.getValue().equals("Male"))
                         user.setGender(true);
 
-                    else if (gender_choose.getValue().equals("female"))
+                    else if (gender_choose.getValue().equals("Female"))
                         user.setGender(false);
 
                    if (type_choose.getValue().equals("Normal"))

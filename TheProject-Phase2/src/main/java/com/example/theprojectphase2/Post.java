@@ -85,6 +85,11 @@ public class Post implements Comparable<Post>  {
       @DBField(name = "title")
       private String title = "";
 
+      @DBField(name = "replies")
+      public ArrayList<Double> repliesId = new ArrayList<>();
+
+      public ArrayList<Post> replies = new ArrayList<>();
+
       @DBField(name = "owner")
       Integer OwnerId = 0;
 
@@ -263,5 +268,21 @@ public class Post implements Comparable<Post>  {
 
       public Integer getOwnerId() {
             return OwnerId;
+      }
+
+      public ArrayList<Double> getRepliesId() {
+            return repliesId;
+      }
+
+      public ArrayList<Post> getReplies() {
+            return replies;
+      }
+
+      public void setRepliesId(ArrayList<Double> repliesId) {
+            this.repliesId = repliesId;
+      }
+
+      public void setReplies(ArrayList<Post> replies) {
+            this.replies = replies;
       }
 }

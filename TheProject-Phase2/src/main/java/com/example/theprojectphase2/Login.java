@@ -41,6 +41,9 @@ public class Login {
 
        Scene scene = new Scene(parent);
 
+       SignUpController controller = loader.getController();
+       controller.initialize();
+
        Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
        MainStage.setScene(scene);
@@ -75,9 +78,6 @@ public class Login {
 
     public static void initializeUser() throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
 
-        org.joda.time.LocalDateTime l = org.joda.time.LocalDateTime.now();
-        String s = l.getClass().getSimpleName();
-        System.out.println(s);
 
         User.Users = DBManagerTester.doSelectQuery("SELECT * FROM users;", User.class);
 
@@ -111,6 +111,11 @@ public class Login {
                     if(comment.getId() == i)
                         post.getComments().add(comment);
 
+            for(Double i : post.getRepliesId())
+                for(Post post1 : Post.Posts)
+                    if(post1.getId() == i)
+                        post.getReplies().add(post1);
+
             if(!post.getImageString().equals("null")){
               String base64Image = post.getImageString().split(",")[0];
               InputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(base64Image));
@@ -129,6 +134,11 @@ public class Login {
                 for(User user : User.Users)
                     if(user.getID() == i)
                         comment.getLikers().add(user);
+
+            for(Double i : comment.getCommentsId())
+                for(Comment c : Comment.Comments)
+                    if(c.getId() == i)
+                        comment.getComments().add(c);
 
         }
 
@@ -218,6 +228,7 @@ public class Login {
 
             //update All Posts
             for(Post post : Post.Posts){
+
                 post.getLikersId().clear();
                 for(User user1 : post.getLikers())
                         {
@@ -226,13 +237,18 @@ public class Login {
                                 post.getLikersId().add((double) user1.getID());
                         }
 
-                    post.getCommentsId().clear();
+
+                post.getCommentsId().clear();
                 for(Comment comment : post.getComments())
                     {
                         post.getCommentsId().add((double)comment.getId());
                         //if(!post.getCommentsId().contains((double)comment.getId()))
                             //post.getCommentsId().add((double)comment.getId());
                     }
+
+                post.getRepliesId().clear();
+                for(Post p : post.getReplies())
+                    post.getRepliesId().add((double)p.getId());
 
                 DBManagerTester.update(post);
             }
@@ -241,12 +257,19 @@ public class Login {
             for(Comment comment : Comment.Comments){
                 comment.setOwnerId(comment.getOwner().getID());
 
-
+                 comment.getLikersId().clear();
                 for(User user1 : comment.getLikers())
                 {
                     //post.getLikersId().retainAll(user.getID());
-                    if(!comment.getLikersId().contains((double) user1.getID()))
                         comment.getLikersId().add((double) user1.getID());
+                }
+
+                comment.getCommentsId().clear();
+                for(Comment c : comment.getComments())
+                {
+                    comment.getCommentsId().add((double)c.getId());
+                    //if(!post.getCommentsId().contains((double)comment.getId()))
+                    //post.getCommentsId().add((double)comment.getId());
                 }
 
 
@@ -257,18 +280,18 @@ public class Login {
             //update All Groups
             for(Group group : Group.Groups){
 
+               group.getMembersId().clear();
                 for(User user1 : group.getMembers())
                     {
                         //post.getLikersId().retainAll(user.getID());
-                        if(!group.getMembersId().contains((double)user1.getID()))
                             group.getMembersId().add((double) user1.getID());
                     }
 
+               group.getPostsId().clear();
                 for(Post post : group.getPosts())
                      {
                         //post.getLikersId().retainAll(user.getID());
-                        if(!group.getPostsId().contains((double)post.getId()))
-                            group.getPostsId().add((double)post.getId());
+                         group.getPostsId().add((double)post.getId());
                     }
 
                 DBManagerTester.update(group);
@@ -277,61 +300,51 @@ public class Login {
             //update all users
             for(User user1 : User.Users)
             {
+                user1.getPostsId().clear();
                 for(Post post : user1.getPosts())
                     {
                         //post.getLikersId().retainAll(user.getID());
-                        if(!user1.getPostsId().contains((double)post.getId()))
                             user1.getPostsId().add((double)post.getId());
                     }
 
+                user1.getSavedPostsId().clear();
                 for(Post post : user1.getSavedPosts())
                     {
                         //post.getLikersId().retainAll(user.getID());
-                        if(!user1.getSavedPostsId().contains((double)post.getId()))
                             user1.getSavedPostsId().add((double)post.getId());
                     }
 
+                user1.getLikedPostsId().clear();
                 for(Post post : user1.getLikedPosts())
                     {
                         //post.getLikersId().retainAll(user.getID());
-                        if(!user1.getLikedPostsId().contains((double)post.getId()))
                             user1.getLikedPostsId().add((double)post.getId());
                     }
 
+                user1.getReceivedMessagesId().clear();
                 for(Post post : user1.getReceivedMessages())
                      {
                         //post.getLikersId().retainAll(user.getID());
-                        if(!user1.getReceivedMessagesId().contains((double)post.getId()))
                             user1.getReceivedMessagesId().add((double)post.getId());
                     }
 
+                user1.getGroupsId().clear();
                 for(Group group : user1.getGroups())
                     {
-                        System.out.println("FUCKING HERE   "+ group.getGroupName());
-                        //post.getLikersId().retainAll(user.getID());
-                        if(!user1.getGroupsId().contains((double)group.getID())){
-                            user1.getGroupsId().add((double)group.getID());
-                            System.out.println(group.getID());
-                        }
-
-                        for(Double ii : user1.getGroupsId())
-                            System.out.println(ii);
+                        user1.getGroupsId().add((double)group.getID());
                     }
 
+                user1.getFollowersId().clear();
                 for(User u : user1.getFollowers())
                     {
-                        //post.getLikersId().retainAll(user.getID());
-                        if(!user1.getFollowersId().contains((double)u.getID()))
-                            user1.getFollowersId().add((double)u.getID());
+                        user1.getFollowersId().add((double)u.getID());
                     }
 
-
+                user1.getFollowedId().clear();
                 for(User u : user1.getFollowed())
                      {
-                        //post.getLikersId().retainAll(user.getID());
-                        if(!user1.getFollowedId().contains((double)u.getID()))
-                            user1.getFollowedId().add((double)u.getID());
-                    }
+                         user1.getFollowedId().add((double)u.getID());
+                     }
 
                 DBManagerTester.update(user1);
             }
