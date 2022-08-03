@@ -215,7 +215,6 @@ public class Login {
 
 
         MainStage.setOnCloseRequest(event1 -> {
-            System.out.println("Stage is closing");
 
             //update All Posts
             for(Post post : Post.Posts){

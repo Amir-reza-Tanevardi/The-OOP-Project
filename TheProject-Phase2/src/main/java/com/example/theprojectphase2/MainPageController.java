@@ -118,6 +118,12 @@ public class MainPageController {
     @FXML
     Button discover_people;
 
+    @FXML
+    Button changeAccount_button;
+
+    @FXML
+    Button logOut_button;
+
     boolean isInGroup;
     boolean isInPv;
     ToggleSwitch toggleSwitch;
@@ -205,6 +211,8 @@ public class MainPageController {
         followingButton.setManaged(false);
         newGroup_button.setManaged(false);
         discover_people.setManaged(false);
+        changeAccount_button.setManaged(false);
+        logOut_button.setManaged(false);
 
         setting.setDisable(true);
         main_image.setDisable(true);
@@ -214,6 +222,8 @@ public class MainPageController {
         followingButton.setDisable(true);
         newGroup_button.setDisable(true);
         discover_people.setDisable(true);
+        changeAccount_button.setDisable(true);
+        logOut_button.setDisable(true);
 
         myposts_button.setVisible(false);
         followerButton.setVisible(false);
@@ -222,6 +232,8 @@ public class MainPageController {
         main_image.setVisible(false);
         newGroup_button.setVisible(false);
         discover_people.setVisible(false);
+        changeAccount_button.setVisible(false);
+        logOut_button.setVisible(false);
 
         search_button.setOnAction(event -> loadData(user));
 
@@ -643,6 +655,8 @@ public class MainPageController {
         newGroup_button.setManaged(!newGroup_button.isManaged());
         discover_people.setManaged(!discover_people.isManaged());
         toggleSwitch.setManaged(!toggleSwitch.isManaged());
+        changeAccount_button.setManaged(!changeAccount_button.isManaged());
+        logOut_button.setManaged(!logOut_button.isManaged());
 
         setting.setDisable(!setting.isDisable());
         main_image.setDisable(!main_image.isDisable());
@@ -653,6 +667,8 @@ public class MainPageController {
         newGroup_button.setDisable(!newGroup_button.isDisable());
         discover_people.setDisable(!discover_people.isDisable());
         toggleSwitch.setDisable(!toggleSwitch.isDisable());
+        changeAccount_button.setDisable(!changeAccount_button.isDisable());
+        logOut_button.setDisable(!logOut_button.isDisable());
 
         myposts_button.setVisible(!myposts_button.isVisible());
         followerButton.setVisible(!followerButton.isVisible());
@@ -662,6 +678,8 @@ public class MainPageController {
         newGroup_button.setVisible(!newGroup_button.isVisible());
         discover_people.setVisible(!discover_people.isVisible());
         toggleSwitch.setVisible(!toggleSwitch.isVisible());
+        changeAccount_button.setVisible(!changeAccount_button.isVisible());
+        logOut_button.setVisible(!logOut_button.isVisible());
         //setting.setVisible(true);
 
     }
@@ -1940,5 +1958,151 @@ public class MainPageController {
         event.consume();
 
         return image;
+    }
+
+    public void ChangeAccount(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("UserChangeProp.fxml"));
+        Parent parent = loader.load();
+
+        Scene scene = new Scene(parent);
+
+        UserChangePropController mainPageController = loader.getController();
+        mainPageController.initialize(user);
+
+        Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+        MainStage.setScene(scene);
+        MainStage.show();
+    }
+
+    public void LogOut(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("hello-view.fxml"));
+        Parent parent = loader.load();
+
+        Scene scene = new Scene(parent);
+
+        Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+        //update All Posts
+        for(Post post : Post.Posts){
+            post.getLikersId().clear();
+            for(User user1 : post.getLikers())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                //if(!post.getLikersId().contains((double) user1.getID()))
+                post.getLikersId().add((double) user1.getID());
+            }
+
+            post.getCommentsId().clear();
+            for(Comment comment : post.getComments())
+            {
+                post.getCommentsId().add((double)comment.getId());
+                //if(!post.getCommentsId().contains((double)comment.getId()))
+                //post.getCommentsId().add((double)comment.getId());
+            }
+
+            DBManagerTester.update(post);
+        }
+
+        //update All Comments
+        for(Comment comment : Comment.Comments){
+            comment.setOwnerId(comment.getOwner().getID());
+
+
+            for(User user1 : comment.getLikers())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                if(!comment.getLikersId().contains((double) user1.getID()))
+                    comment.getLikersId().add((double) user1.getID());
+            }
+
+
+            DBManagerTester.update(comment);
+        }
+
+
+        //update All Groups
+        for(Group group : Group.Groups){
+
+            for(User user1 : group.getMembers())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                if(!group.getMembersId().contains((double)user1.getID()))
+                    group.getMembersId().add((double) user1.getID());
+            }
+
+            for(Post post : group.getPosts())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                if(!group.getPostsId().contains((double)post.getId()))
+                    group.getPostsId().add((double)post.getId());
+            }
+
+            DBManagerTester.update(group);
+        }
+
+        //update all users
+        for(User user1 : User.Users)
+        {
+            for(Post post : user1.getPosts())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                if(!user1.getPostsId().contains((double)post.getId()))
+                    user1.getPostsId().add((double)post.getId());
+            }
+
+            for(Post post : user1.getSavedPosts())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                if(!user1.getSavedPostsId().contains((double)post.getId()))
+                    user1.getSavedPostsId().add((double)post.getId());
+            }
+
+            for(Post post : user1.getLikedPosts())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                if(!user1.getLikedPostsId().contains((double)post.getId()))
+                    user1.getLikedPostsId().add((double)post.getId());
+            }
+
+            for(Post post : user1.getReceivedMessages())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                if(!user1.getReceivedMessagesId().contains((double)post.getId()))
+                    user1.getReceivedMessagesId().add((double)post.getId());
+            }
+
+            for(Group group : user1.getGroups())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                if(!user1.getGroupsId().contains((double)group.getID())){
+                    user1.getGroupsId().add((double)group.getID());
+                }
+
+            }
+
+            for(User u : user1.getFollowers())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                if(!user1.getFollowersId().contains((double)u.getID()))
+                    user1.getFollowersId().add((double)u.getID());
+            }
+
+
+            for(User u : user1.getFollowed())
+            {
+                //post.getLikersId().retainAll(user.getID());
+                if(!user1.getFollowedId().contains((double)u.getID()))
+                    user1.getFollowedId().add((double)u.getID());
+            }
+
+            DBManagerTester.update(user1);
+        }
+
+        MainStage.setScene(scene);
+        MainStage.show();
+
     }
 }

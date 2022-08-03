@@ -1,5 +1,7 @@
 package com.example.theprojectphase2;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -7,10 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -57,14 +56,16 @@ public class SignUpController {
     ImageView picture;
 
     @FXML
-    ChoiceBox<String> gender_choose;
+    ComboBox<String> gender_choose;
 
     @FXML
-    ChoiceBox<String> privacy_choose;
+    ComboBox<String> type_choose;
 
     @FXML
     Label msg;
 
+    ObservableList<String> genderList = FXCollections.observableArrayList("Male","Female");
+    ObservableList<String> typeList = FXCollections.observableArrayList("Normal","Business");
 
     @FXML
     private void BackToLogIn(ActionEvent event) throws IOException {
@@ -83,10 +84,9 @@ public class SignUpController {
 
     @FXML
     private void DoSignUp(ActionEvent event) throws SQLException, IOException {
-        gender_choose.getItems().add("male");
-        gender_choose.getItems().add("female");
-        privacy_choose.getItems().add("private");
-        privacy_choose.getItems().add("public");
+        gender_choose.setItems(genderList);
+        type_choose.setItems(typeList);
+
 
         String s1 = username_text.getText();
 
@@ -131,46 +131,53 @@ public class SignUpController {
             msg.setText("Please Repeat your Password");
 
        else {
-            //if (set.isBeforeFirst())
-                //System.out.println("This username is already in use.");
+            boolean alreadyExists = false;
+            for(User u : User.Users)
+                if (u.getUserName().equals(s1)) {
+                    alreadyExists = true;
+                    break;
+                }
 
-            //else {
+            if(alreadyExists)
+                msg.setText("This Username Is Already In Use.");
+
+            else {
                 if(!password_text.getText().equals(password2_text.getText()))
                     msg.setText("The Passwords Are Not The Same.");
 
                 else{
 
 
-                    user.setEmail(email_text.getText());
+                    if(!email_text.getText().isEmpty()) user.setEmail(email_text.getText());
+                    else user.setEmail("");
 
-                    user.setPhoneNumber(phone_text.getText());
+                    if(!phone_text.getText().isEmpty()) user.setPhoneNumber(phone_text.getText());
+                    else user.setPhoneNumber("");
 
-                    user.setAge(Integer.parseInt(age_text.getText()));
+                    if(!age_text.getText().isEmpty()) user.setAge(Integer.parseInt(age_text.getText()));
+                    else user.setAge(18);
 
-                    user.setBio(bio_text.getText());
+                    if(!bio_text.getText().isEmpty()) user.setBio(bio_text.getText());
+                    else user.setBio("");
 
-                    user.setGender(true);
+                    if (gender_choose.getValue().equals("male"))
+                        user.setGender(true);
 
-                    user.setNormal(true);
+                    else if (gender_choose.getValue().equals("female"))
+                        user.setGender(false);
 
-                    //if (gender_choose.getValue().equals("male"))
-                        //user.setGender(true);
+                   if (type_choose.getValue().equals("Normal"))
+                        user.setNormal(true);
 
-                    //else if (gender_choose.getValue().equals("female"))
-                        //user.setGender(false);
-
-                   // if (privacy_choose.getValue().equals("private"))
-                        //user.setPrivate(true);
-
-                    // if (gender_choose.getValue().equals("public"))
-                        //user.setPrivate(false);
+                   else if (type_choose.getValue().equals("Business"))
+                        user.setNormal(false);
 
                     User.Users.add(user);
 
                     DBManagerTester.insert(user);
                 }
 
-            //}
+            }
         }
 
         FXMLLoader loader = new FXMLLoader();

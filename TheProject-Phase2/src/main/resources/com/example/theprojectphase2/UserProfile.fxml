@@ -59,7 +59,7 @@
          <center>
             <AnchorPane prefHeight="208.0" prefWidth="310.0" BorderPane.alignment="CENTER">
                <children>
-                  <Label layoutX="31.0" layoutY="50.0" text="Bio:">
+                  <Label layoutX="34.0" layoutY="72.0" text="Bio:">
                      <font>
                         <Font size="19.0" />
                      </font>
@@ -69,7 +69,10 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <Label fx:id="Bio_label" layoutX="31.0" layoutY="78.0" prefHeight="72.0" prefWidth="215.0" />
+                  <Label fx:id="Bio_label" layoutX="34.0" layoutY="107.0" prefHeight="60.0" prefWidth="215.0">
+                     <font>
+                        <Font size="15.0" />
+                     </font></Label>
                   <TextField fx:id="searchBar" layoutX="147.0" layoutY="198.0" promptText="Search Members:" />
                   <Button layoutX="274.0" layoutY="198.0" mnemonicParsing="false" onAction="#SearchUsers" prefHeight="15.0" prefWidth="30.0" />
                   <ImageView fitHeight="16.0" fitWidth="25.0" layoutX="280.0" layoutY="203.0" pickOnBounds="true" preserveRatio="true">
@@ -78,6 +81,11 @@
                      </image>
                   </ImageView>
                   <Button fx:id="follow_button" layoutX="222.0" layoutY="14.0" mnemonicParsing="false" onAction="#follow" style="-fx-background-color: transparent;" text="follow" textFill="#00acee">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Button>
+                  <Button layoutX="18.0" layoutY="14.0" mnemonicParsing="false" onAction="#SeePost" style="-fx-background-color: transparent;" text="See Posts" textFill="#00acee">
                      <font>
                         <Font size="17.0" />
                      </font>

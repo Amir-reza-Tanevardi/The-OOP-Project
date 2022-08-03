@@ -242,5 +242,26 @@ public class UserProfileController {
         s.show();
     }
 
+    public void SeePost(ActionEvent event) throws IOException {
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("MainPage.fxml"));
+        Parent parent = loader.load();
+
+        Scene scene = new Scene(parent);
+
+        MainPageController mainPageController = loader.getController();
+        mainPageController.initialize(us);
+        mainPageController.ViewMyPosts(user);
+
+        Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+        MainStage.close();
+
+        s.setScene(scene);
+        s.show();
+    }
+
+
+
 
 }
