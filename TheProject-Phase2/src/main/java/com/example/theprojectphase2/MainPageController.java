@@ -586,7 +586,7 @@ public class MainPageController {
 
         main_type.setDisable(false);
         main_type.clear();
-        main_type.setPromptText("Add Comment");
+        main_type.setPromptText("Add Comment...");
         send_button.setDisable(false);
         attachment.setDisable(false);
         send_button.setId(String.valueOf(hyperlink.getId()));
@@ -704,7 +704,7 @@ public class MainPageController {
 
                 send_button.setId(String.valueOf(u.getID()));
                 main_type.setDisable(false);
-                main_type.setPromptText("Type New Massage PV");
+                main_type.setPromptText("Type New Massage...");
                 title_label.setText(u.getUserName());
                 title_image.setId(chosen.getId());
                 title_image.setImage(u.getImage());
@@ -738,19 +738,14 @@ public class MainPageController {
             for (Group g : user.getGroups())
                 if (g.getID() == Integer.parseInt(chosen.getId())) {
                     main_type.setDisable(false);
-                    main_type.setPromptText("Type New Massage");
+                    main_type.setPromptText("Type New Massage...");
                     title_label.setText(g.getGroupName()+"\n"+g.getMembers().size()+" members");
                     title_image.setId(chosen.getId());
                     title_image.setImage(g.getImage());
 
                     send_button.setId(String.valueOf(g.getID()));
 
-                    ArrayList<Post> posts = new ArrayList<>();
-
-                    for(Post post : g.getPosts()) {
-                        posts.add(post);
-                        posts.addAll(post.getReplies());
-                    }
+                    ArrayList<Post> posts = new ArrayList<>(g.getPosts());
 
                    Collections.sort(posts);
 
@@ -809,169 +804,255 @@ public class MainPageController {
         //if(the_list.getSelectionModel().getSelectedItem().getText().equals("Groups")) {
 
 
-          if(isInGroup && !isInPv) {
-              for (Group g : user.getGroups())
-                  if (g.getID() == Integer.parseInt(send_button.getId()) && (!main_type.getText().isEmpty() ||view.getImage()!=null)) {
+        if(!send_button.getId().contains("-")) {
+            if (isInGroup && !isInPv) {
+                for (Group g : user.getGroups())
+                    if (g.getID() == Integer.parseInt(send_button.getId()) && (!main_type.getText().isEmpty() || view.getImage() != null)) {
 
-                      Post post = new Post("", main_type.getText(), user);
-                      post.setOwnerId(user.getID());
-
-
-                      if(view.getImage() == null)
-                          post.setImageString("null");
-
-                      else{
-                          post.setImage(view.getImage());
-
-                          BufferedImage bImage = SwingFXUtils.fromFXImage(view.getImage(), null);
-                          ByteArrayOutputStream s = new ByteArrayOutputStream();
-                          ImageIO.write(bImage, "png", s);
-                          byte[] res  = s.toByteArray();
-                          s.close();
-                          String encodedFile = Base64.getEncoder().encodeToString(res);
-                          post.setImageString(encodedFile);
-                          view.setImage(null);
-                      }
-
-                      DBManagerTester.insert(post);
+                        Post post = new Post("", main_type.getText(), user);
+                        post.setOwnerId(user.getID());
 
 
-                      loadGroupMessage(post);
-                      g.getPosts().add(post);
-                      Post.Posts.add(post);
+                        if (view.getImage() == null)
+                            post.setImageString("null");
 
+                        else {
+                            post.setImage(view.getImage());
 
-                      group_vbox.getChildren().clear();
-                      loadData(user);
-
-                      //Because the dataBase doesn't work for now I can't save the massage but whenever it
-                      // got fixed just uncomment the kine below
-                      //DBManager.save(post);
-                      break;
-                  }
-          }
-
-
-          else if(isInPv && !isInGroup) {
-                    for (User u : User.Users)
-                        if (u.getID() == Integer.parseInt(send_button.getId()) && (!main_type.getText().isEmpty() ||view.getImage()!=null)) {
-
-                            Post post = new Post("", main_type.getText(), user);
-                            post.setOwnerId(user.getID());
-
-                            if(view.getImage() == null)
-                                post.setImageString("null");
-
-                            else{
-                                post.setImage(view.getImage());
-
-                                BufferedImage bImage = SwingFXUtils.fromFXImage(view.getImage(), null);
-                                ByteArrayOutputStream s = new ByteArrayOutputStream();
-                                ImageIO.write(bImage, "png", s);
-                                byte[] res  = s.toByteArray();
-                                s.close();
-                                String encodedFile = Base64.getEncoder().encodeToString(res);
-                                post.setImageString(encodedFile);
-                                view.setImage(null);
-                            }
-
-                            DBManagerTester.insert(post);
-
-                            loadGroupMessage(post);
-                            u.getReceivedMessages().add(post);
-                            Post.Posts.add(post);
-
-                            group_vbox.getChildren().clear();
-                            loadData(user);
-
-                            //Because the dataBase doesn't work for now I can't save the massage but whenever it
-                            // got fixed just uncomment the kine below
-                            //DBManager.save(post);
-                            break;
+                            BufferedImage bImage = SwingFXUtils.fromFXImage(view.getImage(), null);
+                            ByteArrayOutputStream s = new ByteArrayOutputStream();
+                            ImageIO.write(bImage, "png", s);
+                            byte[] res = s.toByteArray();
+                            s.close();
+                            String encodedFile = Base64.getEncoder().encodeToString(res);
+                            post.setImageString(encodedFile);
+                            view.setImage(null);
                         }
+
+                        DBManagerTester.insert(post);
+
+
+                        loadGroupMessage(post);
+                        g.getPosts().add(post);
+                        Post.Posts.add(post);
+
+
+                        group_vbox.getChildren().clear();
+                        loadData(user);
+
+                        //Because the dataBase doesn't work for now I can't save the massage but whenever it
+                        // got fixed just uncomment the kine below
+                        //DBManager.save(post);
+                        break;
+                    }
+            }
+            else if (isInPv && !isInGroup) {
+                for (User u : User.Users)
+                    if (u.getID() == Integer.parseInt(send_button.getId()) && (!main_type.getText().isEmpty() || view.getImage() != null)) {
+
+                        Post post = new Post("", main_type.getText(), user);
+                        post.setOwnerId(user.getID());
+
+                        if (view.getImage() == null)
+                            post.setImageString("null");
+
+                        else {
+                            post.setImage(view.getImage());
+
+                            BufferedImage bImage = SwingFXUtils.fromFXImage(view.getImage(), null);
+                            ByteArrayOutputStream s = new ByteArrayOutputStream();
+                            ImageIO.write(bImage, "png", s);
+                            byte[] res = s.toByteArray();
+                            s.close();
+                            String encodedFile = Base64.getEncoder().encodeToString(res);
+                            post.setImageString(encodedFile);
+                            view.setImage(null);
+                        }
+
+                        DBManagerTester.insert(post);
+
+                        loadGroupMessage(post);
+                        u.getReceivedMessages().add(post);
+                        Post.Posts.add(post);
+
+                        group_vbox.getChildren().clear();
+                        loadData(user);
+
+                        //Because the dataBase doesn't work for now I can't save the massage but whenever it
+                        // got fixed just uncomment the kine below
+                        //DBManager.save(post);
+                        break;
+                    }
+            }
+            else if(!isInGroup) {
+                    for (Post post : Post.Posts) {
+                        if (post.getId() == Integer.parseInt(send_button.getId())) {
+                            if (!main_type.getText().isEmpty()) {
+                                Comment comment = new Comment(main_type.getText(), user);
+                                comment.setOwnerId(user.getID());
+
+                                comment.setImageString("null");
+
+                                DBManagerTester.insert(comment);
+
+                                post.getComments().add(comment);
+                                Comment.Comments.add(comment);
+                                main_type.clear();
+
+                                TextFlow t = loadComment(comment);
+                                t.setTranslateX(40);
+                                int index = 0;
+                                for (Node n : chat_box.getChildren())
+                                    if (n.getId().equals(String.valueOf(post.getId())))
+                                        index = chat_box.getChildren().indexOf(n);
+
+                                chat_box.getChildren().add(index + 1, t);
+                            } else {
+                                //Do Things if there is nothing in the main_type
+                                //It will be about editing a massage label
+                            }
+                        }
+                    }
                 }
+        }
+
+        else {
+            if (isInGroup && !isInPv) {
+                for (Group g : user.getGroups())
+                    if (g.getID() == Integer.parseInt(send_button.getId().substring(0,send_button.getId().indexOf("-"))) && (!main_type.getText().isEmpty() || view.getImage() != null)) {
+
+                        Post post = new Post("", main_type.getText(), user);
+                        post.setOwnerId(user.getID());
+
+
+                        if (view.getImage() == null)
+                            post.setImageString("null");
+
+                        else {
+                            post.setImage(view.getImage());
+
+                            BufferedImage bImage = SwingFXUtils.fromFXImage(view.getImage(), null);
+                            ByteArrayOutputStream s = new ByteArrayOutputStream();
+                            ImageIO.write(bImage, "png", s);
+                            byte[] res = s.toByteArray();
+                            s.close();
+                            String encodedFile = Base64.getEncoder().encodeToString(res);
+                            post.setImageString(encodedFile);
+                            view.setImage(null);
+                        }
+
+                        DBManagerTester.insert(post);
+
+
+                        for(Post p : Post.Posts)
+                            if(p.getId() == Integer.parseInt(send_button.getId().substring(send_button.getId().indexOf("-")+1)))
+                                p.getReplies().add(post);
+
+
+                        loadGroupMessage(post);
+                        g.getPosts().add(post);
+                        Post.Posts.add(post);
+
+
+                        group_vbox.getChildren().clear();
+                        loadData(user);
+
+                        //Because the dataBase doesn't work for now I can't save the massage but whenever it
+                        // got fixed just uncomment the kine below
+                        //DBManager.save(post);
+                        break;
+                    }
+            }
+            else if (isInPv && !isInGroup) {
+                for (User u : User.Users)
+                    if (u.getID() == Integer.parseInt(send_button.getId().substring(0,send_button.getId().indexOf("-"))) && (!main_type.getText().isEmpty() || view.getImage() != null)) {
+
+                        Post post = new Post("", main_type.getText(), user);
+                        post.setOwnerId(user.getID());
+
+                        if (view.getImage() == null)
+                            post.setImageString("null");
+
+                        else {
+                            post.setImage(view.getImage());
+
+                            BufferedImage bImage = SwingFXUtils.fromFXImage(view.getImage(), null);
+                            ByteArrayOutputStream s = new ByteArrayOutputStream();
+                            ImageIO.write(bImage, "png", s);
+                            byte[] res = s.toByteArray();
+                            s.close();
+                            String encodedFile = Base64.getEncoder().encodeToString(res);
+                            post.setImageString(encodedFile);
+                            view.setImage(null);
+                        }
+
+                        DBManagerTester.insert(post);
+
+                        for(Post p : Post.Posts)
+                            if(p.getId() == Integer.parseInt(send_button.getId().substring(send_button.getId().indexOf("-")+1)))
+                                p.getReplies().add(post);
+
+                        loadGroupMessage(post);
+                        u.getReceivedMessages().add(post);
+                        Post.Posts.add(post);
+
+                        group_vbox.getChildren().clear();
+                        loadData(user);
+
+                        //Because the dataBase doesn't work for now I can't save the massage but whenever it
+                        // got fixed just uncomment the kine below
+                        //DBManager.save(post);
+                        break;
+                    }
+            }
+            else if(!isInGroup){
+                for (Post post : Post.Posts) {
+                    if (post.getId() == Integer.parseInt(send_button.getId().substring(0,send_button.getId().indexOf("-")))) {
+                        if (!main_type.getText().isEmpty()) {
+                            Comment comment = new Comment(main_type.getText(), user);
+                            comment.setOwnerId(user.getID());
+
+                            comment.setImageString("null");
+
+                            DBManagerTester.insert(comment);
+
+                            System.out.println(send_button.getId());
+                            System.out.println(send_button.getId().substring(send_button.getId().indexOf("-")));
+
+                            for(Comment c : Comment.Comments)
+                                if(c.getId() == Integer.parseInt(send_button.getId().substring(send_button.getId().indexOf("-")+1)))
+                                    c.getComments().add(comment);
+
+                            post.getComments().add(comment);
+                            Comment.Comments.add(comment);
+                            main_type.clear();
+
+                            TextFlow t = loadComment(comment);
+                            t.setTranslateX(40);
+                            int index = 0;
+                            for (Node n : chat_box.getChildren())
+                                if (n.getId().equals(send_button.getId()))
+                                    index = chat_box.getChildren().indexOf(n);
+
+                            chat_box.getChildren().add(index + 1, t);
+                        }
+                        else {
+                            //Do Things if there is nothing in the main_type
+                            //It will be about editing a massage label
+                        }
+                    }
+                }
+            }
+
+        }
 
 
         //}
 
        //This second part is about adding comments
-        else if(!isInGroup){
-
-              if(!send_button.getId().contains("-")){
-                  for (Post post : Post.Posts) {
-                      if (post.getId() == Integer.parseInt(send_button.getId())) {
-                          if (!main_type.getText().isEmpty()) {
-                              Comment comment = new Comment(main_type.getText(), user);
-                              comment.setOwnerId(user.getID());
-
-                              comment.setImageString("null");
-
-                              DBManagerTester.insert(comment);
-
-                              post.getComments().add(comment);
-                              Comment.Comments.add(comment);
-                              main_type.clear();
-
-                              TextFlow t = loadComment(comment);
-                              t.setTranslateX(40);
-                              int index = 0;
-                              for (Node n : chat_box.getChildren())
-                                  if (n.getId().equals(String.valueOf(post.getId())))
-                                      index = chat_box.getChildren().indexOf(n);
-
-                              chat_box.getChildren().add(index + 1, t);
-                          } else {
-                              //Do Things if there is nothing in the main_type
-                              //It will be about editing a massage label
-                          }
-                      }
-                  }
-              }
-
-              else{
-                  for (Post post : Post.Posts) {
-                      if (post.getId() == Integer.parseInt(send_button.getId().substring(0,send_button.getId().indexOf("-")))) {
-                          if (!main_type.getText().isEmpty()) {
-                              Comment comment = new Comment(main_type.getText(), user);
-                              comment.setOwnerId(user.getID());
-
-                              comment.setImageString("null");
-
-                              DBManagerTester.insert(comment);
-
-                              System.out.println(send_button.getId());
-                              System.out.println(send_button.getId().substring(send_button.getId().indexOf("-")));
-
-                              for(Comment c : Comment.Comments)
-                                  if(c.getId() == Integer.parseInt(send_button.getId().substring(send_button.getId().indexOf("-")+1)))
-                                      c.getComments().add(comment);
-
-                              post.getComments().add(comment);
-                              Comment.Comments.add(comment);
-                              main_type.clear();
-
-                              TextFlow t = loadComment(comment);
-                              t.setTranslateX(40);
-                              int index = 0;
-                              for (Node n : chat_box.getChildren())
-                                  if (n.getId().equals(send_button.getId()))
-                                      index = chat_box.getChildren().indexOf(n);
-
-                              chat_box.getChildren().add(index + 1, t);
-                          }
-                          else {
-                              //Do Things if there is nothing in the main_type
-                              //It will be about editing a massage label
-                          }
-                      }
-                  }
-              }
 
 
-
-        }
-
-
+       main_type.clear();
 
     }
 
@@ -1069,11 +1150,14 @@ public class MainPageController {
         else if(s.equals("gmessages_options.fxml")){
             GmessagesOptions_Controller controller = loader.getController();
             if(!textFlow.getId().contains("c")){
-                controller.getButton().setOnAction(event1 -> {
 
-                });
                 for (Post p : Post.Posts)
                     if (p.getId() == Integer.parseInt(textFlow.getId())) {
+                        controller.getButton().setOnAction(event1 -> {
+                            send_button.setId( send_button.getId() + "-" + p.getId() );
+                            popup.hide();
+                            main_type.setPromptText("Type Your Reply to "+p.getOwner().getUserName()+"'s Message...");
+                        });
                         controller.initialize(textFlow, p, user, main_type, title, view);
                         break;
                     }
@@ -1169,6 +1253,7 @@ public class MainPageController {
 
              label.setStyle("-fx-font-size: 12;" + "-fx-text-fill: rgb(150,150,150);");
              label.setOpacity(0.7);
+             label.setTranslateX(10);
 
 
              label.setOnMouseClicked(event -> {
@@ -1463,23 +1548,20 @@ public class MainPageController {
                ShowChart(event, post.getLikes());
        });
 
-        textFlow.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(event.getButton() == MouseButton.PRIMARY) {
-                    try {
-                        LikePost(event);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        textFlow.setOnMouseClicked(event -> {
+            if(event.getButton() == MouseButton.PRIMARY) {
+                try {
+                    LikePost(event);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+            }
 
-                else if(event.getButton() == MouseButton.SECONDARY) {
-                    try {
-                        OpenMessageOption(event,"MessageOptionsMenu.fxml");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            else if(event.getButton() == MouseButton.SECONDARY) {
+                try {
+                    OpenMessageOption(event,"MessageOptionsMenu.fxml");
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -1515,8 +1597,9 @@ public class MainPageController {
         container.getChildren().add(textFlow);
         chat_box.getChildren().add(container);
 
-        container.localToSceneTransformProperty().addListener( ( observable, oldValue, newValue ) ->
+        scroll_bar.vvalueProperty().addListener( ( observable, oldValue, newValue ) ->
         {
+            final  Bounds viewBounds = scroll_bar.getViewportBounds();
             final Bounds boundsOnScene = container.localToScene( container.getBoundsInLocal() );
             if(boundsOnScene.getMinY() > 0 && !watchers.contains(user))
                for(Post post1 : Post.Posts)
@@ -1527,7 +1610,8 @@ public class MainPageController {
                        post.seens.put(String.valueOf(user.getID()),date);
                    }
 
-            System.out.println(boundsOnScene.getMinY());
+            System.out.println(container.getLayoutY()+"  " + container.getHeight()+"   " + scroll_bar.getHeight()+"  "+container.getId());
+            System.out.println();
             //System.out.println(vBox.getHeight());
         } );
 
@@ -1545,6 +1629,7 @@ public class MainPageController {
 
         comment_button.setOnAction(event -> {
             send_button.setId(String.valueOf(post.getId()));
+            main_type.setPromptText("Add a Comment to "+post.getOwner().getUserName()+"'s Post...");
             isInPv = false;
             isInGroup = false;
             main_type.setDisable(false);
@@ -1807,7 +1892,7 @@ public class MainPageController {
         int finalD = d;
         comment_button.setOnAction(event -> {
             send_button.setId(finalD +"-"+comment.getId());
-            System.out.println("fuck yaeh");
+            main_type.setPromptText("Add a Reply to "+comment.getOwner().getUserName()+"'s Comment...");
             isInPv = false;
             isInGroup = false;
             main_type.setDisable(false);
