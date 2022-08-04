@@ -5,17 +5,8 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="134.0" prefWidth="121.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.theprojectphase2.GmessagesOptions_Controller">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="104.0" prefWidth="121.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.theprojectphase2.GmessagesOptions_Controller">
     <children>
-        <Button mnemonicParsing="false" onAction="#Reply" prefHeight="35.0" prefWidth="122.0" style="-fx-background-color: white;" text="Reply">
-            <graphic>
-                <ImageView fitHeight="23.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image url="@reply.png" />
-                    </image>
-                </ImageView>
-            </graphic>
-        </Button>
         <Button fx:id="edit_button" mnemonicParsing="false" onAction="#Edit" prefHeight="31.0" prefWidth="122.0" style="-fx-background-color: white;" text="Edit">
             <graphic>
                 <ImageView fitHeight="21.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true" translateX="-5.0">

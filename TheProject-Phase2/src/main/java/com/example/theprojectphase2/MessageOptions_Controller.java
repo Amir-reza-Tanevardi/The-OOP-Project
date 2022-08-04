@@ -26,8 +26,9 @@ public class MessageOptions_Controller {
     Post post;
     User us;
     TextArea type;
+    AnchorPane title;
 
-    public void initialize(TextFlow t, Post p, User u, TextArea ta){
+    public void initialize(TextFlow t, Post p, User u, TextArea ta, AnchorPane a){
            textFlow = t;
 
            for(Post pp : Post.Posts)
@@ -39,6 +40,8 @@ public class MessageOptions_Controller {
                  us = uu;
 
            type = ta;
+
+           title = a;
 
 
            if(!(post.getOwner().getID() == us.getID())){
@@ -99,7 +102,6 @@ public class MessageOptions_Controller {
 
     public void Edit(ActionEvent event1){
         VBox vBox = (VBox)(textFlow.getParent().getParent());
-        AnchorPane title = (AnchorPane) vBox.getChildren().get(0);
         type.setDisable(false);
         title.setManaged(true);
         title.setVisible(true);
@@ -118,9 +120,10 @@ public class MessageOptions_Controller {
         AnchorPane.setRightAnchor(confirm,10.0);
         VBox vBox1 = (VBox) textFlow.getChildren().get(0);
         Label label = (Label) vBox1.getChildren().get(1);
+        System.out.println(label.getText());
         String[] ss = label.getText().split("\\r?\\n");
         String content = "";
-        for (int i = 1; i < ss.length-1; i++) {
+        for (int i = 1; i < ss.length; i++) {
             content += ss[i];
         }
 
@@ -128,7 +131,7 @@ public class MessageOptions_Controller {
         type.setText(content);
         //textArea.setEditable(true);
         confirm.setOnAction(event -> {
-            label.setText(ss[0] + "\n" + type.getText() +"\n"+ss[ss.length-1]);
+            label.setText(ss[0] + "\n" + type.getText());
             for(Post post : Post.Posts)
                 if(post.getId() == Integer.parseInt(textFlow.getId())){
                     post.setContext(type.getText());
@@ -141,7 +144,7 @@ public class MessageOptions_Controller {
             title.getChildren().remove(decline);
         });
 
-        String finalContent = ss[0] +"\n" + content + "\n" + ss[ss.length-1];
+        String finalContent = ss[0] +"\n" + content;
         decline.setOnAction(event -> {
             label.setText(finalContent);
             type.clear();

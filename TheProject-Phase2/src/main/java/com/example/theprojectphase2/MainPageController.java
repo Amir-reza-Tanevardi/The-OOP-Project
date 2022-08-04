@@ -1060,7 +1060,7 @@ public class MainPageController {
             MessageOptions_Controller controller = loader.getController();
             for (Post p : Post.Posts)
                 if (p.getId() == Integer.parseInt(textFlow.getId())) {
-                    controller.initialize(textFlow, p, user, main_type);
+                    controller.initialize(textFlow, p, user, main_type,title);
 
                     break;
                 }
@@ -1068,12 +1068,28 @@ public class MainPageController {
 
         else if(s.equals("gmessages_options.fxml")){
             GmessagesOptions_Controller controller = loader.getController();
-              for (Post p : Post.Posts)
-                    if (p.getId() == Integer.parseInt(textFlow.getId())) {
-                        controller.initialize(textFlow, p, user, main_type, title , view);
+            if(!textFlow.getId().contains("c")){
+                controller.getButton().setOnAction(event1 -> {
 
+                });
+                for (Post p : Post.Posts)
+                    if (p.getId() == Integer.parseInt(textFlow.getId())) {
+                        controller.initialize(textFlow, p, user, main_type, title, view);
                         break;
                     }
+            }
+
+            else{
+                controller.getButton().setDisable(true);
+                controller.getButton().setVisible(false);
+                controller.getButton().setManaged(false);
+                for (Comment c : Comment.Comments)
+                    if (c.getId() == Integer.parseInt(textFlow.getId().substring(0,textFlow.getId().length()-1))) {
+                        System.out.println(c.getContext());
+                        controller.initialize(textFlow, (Post) c, user, main_type, title, view);
+                        break;
+                    }
+            }
 
 
         }
@@ -1262,22 +1278,13 @@ public class MainPageController {
         {
             final Bounds boundsOnScene = container.localToScene( container.getBoundsInLocal() );
 
-            if(boundsOnScene.getMinY() > 0  && !watchers.contains(user) && !container.getId().contains("c"))
+            if(boundsOnScene.getMinY() > 0  && !watchers.contains(user) )
                 for(Post post1 : Post.Posts)
                     if(post1.getId() == Integer.parseInt(container.getId())){
                         text2.setStyle("-fx-font-size: 12;");
                         DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                         String date = LocalDateTime.now().format(formatter1);
                         post.seens.put(String.valueOf(user.getID()),date);
-                    }
-
-            else if(boundsOnScene.getMinY() > 0  && !watchers.contains(user) && container.getId().contains("c"))
-                for(Comment comment : Comment.Comments)
-                    if(comment.getId() == Integer.parseInt(container.getId().substring(0,container.getId().length()-1))){
-                        text2.setStyle("-fx-font-size: 12;");
-                        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                        String date = LocalDateTime.now().format(formatter1);
-                        comment.seens.put(String.valueOf(user.getID()),date);
                     }
 
         } );
@@ -1680,7 +1687,7 @@ public class MainPageController {
 
         Label text2 = new Label(comment.getContext());
 
-        text2.setStyle("-fx-font-size: 12;");
+        text2.setStyle("-fx-font-size: 14;");
 
         textFlow.setTranslateY(-profileImage.getFitHeight()/2);
 
@@ -1691,8 +1698,15 @@ public class MainPageController {
 
         for(Comment c : Comment.Comments)
             if(c.getComments().contains(comment)){
-                System.out.println("lol");
-                Label label = new Label(c.getOwner().getUserName()+"\n"+c.getContext());
+                Label label = new Label("   "+c.getOwner().getUserName()+"\n"+"   "+c.getContext());
+                //label.setTranslateX(10);
+                if(comment.getOwner().getID() == user.getID())
+                   label.setStyle("-fx-font-size: 13;"+"-fx-background-color: rgb(120,173,192);"+"-fx-text-fill: rgb(84,82,82);");
+
+                else
+                    label.setStyle("-fx-font-size: 13;"+"-fx-background-color: rgb(111,113,115);"+"-fx-text-fill: rgb(49,48,48);");
+
+                label.setMaxWidth(Double.MAX_VALUE);
                 vBox.getChildren().add(label);
 
             }
@@ -1707,7 +1721,7 @@ public class MainPageController {
 
 
 
-        textFlow.setId(String.valueOf(comment.getId()));
+        textFlow.setId(String.valueOf(comment.getId()) + "c");
         container.setId(String.valueOf(comment.getId()));
         //textFlow.setPrefWidth(text.getWidth()+100);
         textFlow.setMinWidth(TextFlow.USE_COMPUTED_SIZE);
