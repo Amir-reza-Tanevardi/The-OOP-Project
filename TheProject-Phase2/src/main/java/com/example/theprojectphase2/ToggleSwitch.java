@@ -49,7 +49,7 @@ import javafx.scene.layout.HBox;
             switchedOn.addListener((a,b,c) -> {
                 if (c) {
                     label.setText("ON");
-                    setStyle("-fx-background-color: green;");
+                    setStyle("-fx-background-color: rgb(0,172,238);");
                     label.toFront();
                 }
                 else {

@@ -127,7 +127,7 @@
                      <graphic>
                         <ImageView fitHeight="31.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" translateX="-3.0">
                            <image>
-                              <Image url="@plus.png" />
+                              <Image url="@group.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -188,8 +188,14 @@
          <top>
             <AnchorPane prefHeight="69.0" prefWidth="494.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button layoutX="421.0" layoutY="20.0" mnemonicParsing="false" onAction="#Post" prefHeight="30.0" prefWidth="52.0" text="Post" AnchorPane.rightAnchor="21.399999999999977" />
-                  <Label fx:id="welcome_title" layoutX="84.0" layoutY="25.0" prefHeight="18.0" prefWidth="183.0" />
+                  <Button layoutX="421.0" layoutY="20.0" mnemonicParsing="false" onAction="#Post" prefHeight="30.0" prefWidth="52.0" style="-fx-background-color: transparent;" AnchorPane.rightAnchor="21.399999999999977">
+                     <graphic>
+                        <ImageView fitHeight="32.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@plus.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
                </children>
             </AnchorPane>
          </top>

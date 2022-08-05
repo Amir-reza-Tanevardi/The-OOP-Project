@@ -189,4 +189,10 @@ public class ProfileGroupController {
         popup.show(MainStage);
     }
 
+    public void Leave(ActionEvent event){
+        group.getMembers().remove(us);
+        us.getGroups().remove(group);
+        SearchUsers();
+    }
+
 }
