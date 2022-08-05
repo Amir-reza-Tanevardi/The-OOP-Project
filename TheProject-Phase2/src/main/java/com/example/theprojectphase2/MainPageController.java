@@ -1599,7 +1599,7 @@ public class MainPageController {
 
         scroll_bar.vvalueProperty().addListener( ( observable, oldValue, newValue ) ->
         {
-            final  Bounds viewBounds = scroll_bar.getViewportBounds();
+            /*final  Bounds viewBounds = scroll_bar.getViewportBounds();
             final Bounds boundsOnScene = container.localToScene( container.getBoundsInLocal() );
             if(boundsOnScene.getMinY() > 0 && !watchers.contains(user))
                for(Post post1 : Post.Posts)
@@ -1608,11 +1608,38 @@ public class MainPageController {
                        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                        String date = LocalDateTime.now().format(formatter1);
                        post.seens.put(String.valueOf(user.getID()),date);
-                   }
+                   }*/
+            //ArrayList<Node> nodes = new ArrayList<>();
+            //for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
+                //for(Node n1 : )
+            //}
 
-            System.out.println(container.getLayoutY()+"  " + container.getHeight()+"   " + scroll_bar.getHeight()+"  "+container.getId());
+            List<Node> visibleNodes = new ArrayList<>();
+            Bounds paneBounds = scroll_bar.localToScene(scroll_bar.getBoundsInParent());
+            if (scroll_bar.getContent() instanceof Parent) {
+                for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
+                    Bounds nodeBounds = n.localToScene(n.getBoundsInLocal());
+                    if (paneBounds.intersects(nodeBounds)) {
+                        visibleNodes.add(n);
+                    }
+                }
+            }
+
+            for(Node n : visibleNodes)
+                for(Post post1 : Post.Posts)
+                    if(n.getId().equals(String.valueOf(post1.getId())))
+                    {
+                        TextFlow t = (TextFlow) n;
+                        ((Label)(((VBox)(((TextFlow)(t.getChildren().get(1))).getChildren().get(0))).getChildren().get(1))).setStyle("-fx-font-size: 15;");
+                        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                        String date = LocalDateTime.now().format(formatter1);
+                        post1.seens.put(String.valueOf(user.getID()),date);
+                        System.out.println(post1.getContext());
+
+                    }
+
+
             System.out.println();
-            //System.out.println(vBox.getHeight());
         } );
 
 
