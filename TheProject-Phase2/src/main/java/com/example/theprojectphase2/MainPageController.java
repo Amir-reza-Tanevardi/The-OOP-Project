@@ -320,7 +320,7 @@ public class MainPageController {
             }
 
             for (User user1 : User.Users) {
-                if(user1.getUserName().contains(search_field.getText())) {
+                if(user1.getUserName().contains(search_field.getText()) && user1.getID() != user.getID()) {
                     TextFlow container = loadPV(user1);
                     TextFlow container1 = loadPV(user1);
                     //group_vbox.getChildren().add(container);
@@ -1565,6 +1565,10 @@ public class MainPageController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         Label text1 = new Label(post.getOwner().getUserName() + "        " + post.publishDate.format(formatter));
+
+        if(!post.getOwner().isNormal)
+            text1.setText(post.getOwner().getUserName() + "        " + post.publishDate.format(formatter) + "       AD");
+
         text1.setStyle("-fx-text-fill: rgb(150,150,150);" + "-fx-font-size: 13");
 
         ArrayList<User> watchers = new ArrayList<>();

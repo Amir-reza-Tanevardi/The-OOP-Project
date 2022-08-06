@@ -34,7 +34,8 @@ public class Login {
     Label msg;
 
    @FXML
-    private void SignUp(ActionEvent event) throws IOException {
+    private void SignUp(ActionEvent event) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+       initializeUser();
        FXMLLoader loader = new FXMLLoader();
        loader.setLocation(getClass().getResource("SignUp.fxml"));
        Parent parent = loader.load();

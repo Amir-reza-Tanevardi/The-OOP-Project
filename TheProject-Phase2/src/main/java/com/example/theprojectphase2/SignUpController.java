@@ -136,7 +136,7 @@ public class SignUpController {
        else {
             boolean alreadyExists = false;
             for(User u : User.Users)
-                if (u.getUserName().equals(s1)) {
+                if (u.getUserName().equals(username_text.getText())) {
                     alreadyExists = true;
                     break;
                 }
@@ -149,50 +149,65 @@ public class SignUpController {
                     msg.setText("The Passwords Are Not The Same.");
 
                 else{
+                    if(password_text.getText().length() < 8)
+                        msg.setText("Password Should Be at Least 8 Characters Long.");
 
+                    else{
+                        if(!age_text.getText().matches("[0-9]+") || Integer.parseInt(age_text.getText())<1)
+                            msg.setText("Please Enter a Valid Age");
 
-                    if(!email_text.getText().isEmpty()) user.setEmail(email_text.getText());
-                    else user.setEmail("");
+                        else {
+                            if(gender_choose.getValue() == null || type_choose.getValue() == null)
+                                msg.setText("Please Specify Your Gender and Account Type");
 
-                    if(!phone_text.getText().isEmpty()) user.setPhoneNumber(phone_text.getText());
-                    else user.setPhoneNumber("");
+                            else{
+                            if (!email_text.getText().isEmpty()) user.setEmail(email_text.getText());
+                            else user.setEmail("");
 
-                    if(!age_text.getText().isEmpty()) user.setAge(Integer.parseInt(age_text.getText()));
-                    else user.setAge(18);
+                            if (!phone_text.getText().isEmpty()) user.setPhoneNumber(phone_text.getText());
+                            else user.setPhoneNumber("");
 
-                    if(!bio_text.getText().isEmpty()) user.setBio(bio_text.getText());
-                    else user.setBio("");
+                            if (!age_text.getText().isEmpty()) user.setAge(Integer.parseInt(age_text.getText()));
+                            else user.setAge(18);
 
-                    if (gender_choose.getValue().equals("Male"))
-                        user.setGender(true);
+                            if (!bio_text.getText().isEmpty()) user.setBio(bio_text.getText());
+                            else user.setBio("");
 
-                    else if (gender_choose.getValue().equals("Female"))
-                        user.setGender(false);
+                            if (gender_choose.getValue().equals("Male"))
+                                user.setGender(true);
 
-                   if (type_choose.getValue().equals("Normal"))
-                        user.setNormal(true);
+                            else if (gender_choose.getValue().equals("Female"))
+                                user.setGender(false);
 
-                   else if (type_choose.getValue().equals("Business"))
-                        user.setNormal(false);
+                            if (type_choose.getValue().equals("Normal"))
+                                user.setNormal(true);
 
-                    User.Users.add(user);
+                            else if (type_choose.getValue().equals("Business"))
+                                user.setNormal(false);
 
-                    DBManagerTester.insert(user);
+                            User.Users.add(user);
+
+                            DBManagerTester.insert(user);
+
+                            FXMLLoader loader = new FXMLLoader();
+                            loader.setLocation(getClass().getResource("hello-view.fxml"));
+                            Parent parent = loader.load();
+
+                            Scene scene = new Scene(parent);
+
+                            Stage MainStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+                            MainStage.setScene(scene);
+                            MainStage.show();
+                        }
+                        }
+                    }
                 }
 
             }
         }
 
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("hello-view.fxml"));
-        Parent parent = loader.load();
 
-        Scene scene = new Scene(parent);
-
-        Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-
-        MainStage.setScene(scene);
-        MainStage.show();
     }
 
 
