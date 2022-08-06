@@ -42,8 +42,6 @@ public class UserProfileController {
     @FXML
     Button follow_button;
 
-    @FXML
-    Button block_button;
 
     @FXML
     ImageView image;
@@ -91,10 +89,11 @@ public class UserProfileController {
         if(user.equals(us)){
            follow_button.setVisible(false);
            follow_button.setDisable(true);
-           block_button.setVisible(false);
-           block_button.setDisable(true);
 
         }
+
+        if(user.getFollowers().contains(us))
+            follow_button.setText("Unfollow");
 
 
     }

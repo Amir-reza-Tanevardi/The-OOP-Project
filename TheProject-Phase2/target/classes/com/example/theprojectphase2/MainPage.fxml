@@ -169,7 +169,7 @@
          <center>
             <BorderPane>
                <center>
-                  <ScrollPane fx:id="scroll_bar" fitToHeight="true" fitToWidth="true" prefHeight="418.0" prefWidth="586.0">
+                  <ScrollPane fx:id="scroll_bar" fitToWidth="true" prefHeight="418.0" prefWidth="586.0">
                      <content>
                         <VBox fx:id="chat_box" prefHeight="406.0" prefWidth="586.0" spacing="10.0" />
                      </content>

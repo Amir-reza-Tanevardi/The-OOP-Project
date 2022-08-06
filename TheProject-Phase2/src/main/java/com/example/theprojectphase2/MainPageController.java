@@ -899,10 +899,12 @@ public class MainPageController {
                                     if (n.getId().equals(String.valueOf(post.getId())))
                                         index = chat_box.getChildren().indexOf(n);
 
-                                chat_box.getChildren().add(index + 1, t);
-                            } else {
-                                //Do Things if there is nothing in the main_type
-                                //It will be about editing a massage label
+                                if(index + post.getComments().size() > chat_box.getChildren().size())
+                                    chat_box.getChildren().add(t);
+
+                                else
+                                    chat_box.getChildren().add(index + post.getComments().size() , t);
+
                             }
                         }
                     }
@@ -1027,12 +1029,13 @@ public class MainPageController {
                                 if (n.getId().equals(send_button.getId()))
                                     index = chat_box.getChildren().indexOf(n);
 
-                            chat_box.getChildren().add(index + 1, t);
+                            if(index + post.getComments().size() > chat_box.getChildren().size())
+                                chat_box.getChildren().add(t);
+
+                            else
+                                chat_box.getChildren().add(index + post.getComments().size() , t);
                         }
-                        else {
-                            //Do Things if there is nothing in the main_type
-                            //It will be about editing a massage label
-                        }
+
                     }
                 }
             }
@@ -1236,24 +1239,43 @@ public class MainPageController {
         container.setId(String.valueOf(post.getId()));
         textFlow.setId(String.valueOf(post.getId()));
 
+        Label text2 = new Label(post.getContext());
+
+        if(!watchers.contains(user))
+            text2.setStyle("-fx-font-size: 14;" + "-fx-font-weight: bold;");
+
+        else
+            text2.setStyle("-fx-font-size: 14;");
+
+        container.setStyle("-fx-background-color: transparent");
+        setStyle(textFlow,post);
+
+
+       //replies
        for(Post p : Post.Posts)
          if(p.getReplies().contains(post)){
 
-             Label label = new Label(p.getOwner().getUserName() +"\n"+ p.getContext());
+             Label label = new Label("   "+p.getOwner().getUserName() +"\n"+ "   "+p.getContext());
 
              if(p.getContext().length() > 7)
                  label.setText(p.getOwner().getUserName() +"\n"+ p.getContext().substring(0,7) + "...");
 
-             label.setStyle("-fx-font-size: 12;" + "-fx-text-fill: rgb(150,150,150);");
-             label.setOpacity(0.7);
-             label.setTranslateX(10);
+
+             if(post.getOwner().getID() == user.getID())
+                 label.setStyle("-fx-font-size: 12;"+"-fx-background-color: rgb(120,173,192);"+"-fx-text-fill: rgb(84,82,82);");
+
+             else
+                 label.setStyle("-fx-font-size: 12;"+"-fx-background-color: rgb(111,113,115);"+"-fx-text-fill: rgb(49,48,48);");
+
+
+             label.setMaxWidth(Double.MAX_VALUE);
 
 
              label.setOnMouseClicked(event -> {
                  for(Node t : chat_box.getChildren())
                      if(t.getId().equals(String.valueOf(p.getId()))){
-                         final Bounds boundsOnScene = t.localToScene( t.getBoundsInLocal() );
-                          scroll_bar.setVvalue(boundsOnScene.getMinY()/100);
+                         final  Bounds viewBounds = scroll_bar.getViewportBounds();
+                          scroll_bar.setVvalue(t.getLayoutY()/viewBounds.getHeight());
                      }
              });
 
@@ -1261,13 +1283,7 @@ public class MainPageController {
 
          }
 
-        Label text2 = new Label(post.getContext());
 
-        if(!watchers.contains(user))
-            text2.setStyle("-fx-font-size: 12;" + "-fx-font-weight: bold;");
-
-        else
-            text2.setStyle("-fx-font-size: 12;");
 
         textFlow.setTranslateY(-profileImage.getFitHeight()/2);
 
@@ -1307,8 +1323,7 @@ public class MainPageController {
         });
 
 
-        container.setStyle("-fx-background-color: transparent");
-        setStyle(textFlow,post);
+
 
 
         /*
@@ -1352,6 +1367,54 @@ public class MainPageController {
 
         chat_box.getChildren().add(container);
 
+
+        ArrayList<Node> nodes = new ArrayList<>();
+        for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
+            TextFlow t = (TextFlow) n;
+            if(post.getOwner().getID() == user.getID())
+                nodes.add(t.getChildren().get(0));
+
+            else
+                nodes.add(t.getChildren().get(1));
+        }
+
+        List<Node> visibleNodes = new ArrayList<>();
+
+        Node nn = ((VBox) (scroll_bar.getContent())).getChildren().get(0);
+        TextFlow tt = (TextFlow) nn;
+        if(post.getOwner().getID() == user.getID())
+            visibleNodes.add(tt.getChildren().get(0));
+
+        else
+            visibleNodes.add(tt.getChildren().get(1));
+
+
+
+        Bounds paneBounds = scroll_bar.localToScene(scroll_bar.getBoundsInParent());
+        if (scroll_bar.getContent() instanceof Parent) {
+            for (Node n : nodes ) {
+                Bounds nodeBounds = n.localToScene(n.getBoundsInLocal());
+                if (paneBounds.intersects(nodeBounds)) {
+                    visibleNodes.add(n);
+                }
+            }
+        }
+
+        for(Node n : visibleNodes)
+            for(Post post1 : Post.Posts)
+                if(n.getId().equals(String.valueOf(post1.getId())))
+                {
+                    TextFlow t = (TextFlow) n;
+                    if(((VBox)(t.getChildren().get(0))).getChildren().size() > 2 && (((VBox)(t.getChildren().get(0))).getChildren().get(2)).getClass().getSimpleName().equals("Label"))
+                        ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(2))).setStyle("-fx-font-size: 15;");
+
+                    else
+                        ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(1))).setStyle("-fx-font-size: 15;");
+                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    String date = LocalDateTime.now().format(formatter1);
+                    post1.seens.put(String.valueOf(user.getID()),date);
+                }
+
         scroll_bar.vvalueProperty().addListener( ( observable, oldValue, newValue ) ->
         {
             /*final  Bounds viewBounds = scroll_bar.getViewportBounds();
@@ -1364,37 +1427,55 @@ public class MainPageController {
                        String date = LocalDateTime.now().format(formatter1);
                        post.seens.put(String.valueOf(user.getID()),date);
                    }*/
-            //ArrayList<Node> nodes = new ArrayList<>();
-            //for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
-            //for(Node n1 : )
-            //}
+            ArrayList<Node> nodes1 = new ArrayList<>();
+            for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
+               TextFlow t = (TextFlow) n;
+               if(post.getOwner().getID() == user.getID())
+                  nodes1.add(t.getChildren().get(0));
 
-            List<Node> visibleNodes = new ArrayList<>();
-            Bounds paneBounds = scroll_bar.localToScene(scroll_bar.getBoundsInParent());
+               else
+                   nodes1.add(t.getChildren().get(1));
+            }
+
+            List<Node> visibleNodes1 = new ArrayList<>();
+
+            Node nn1 = ((VBox) (scroll_bar.getContent())).getChildren().get(0);
+            TextFlow tt1 = (TextFlow) nn1;
+            if(post.getOwner().getID() == user.getID())
+                visibleNodes1.add(tt1.getChildren().get(0));
+
+            else
+                visibleNodes1.add(tt1.getChildren().get(1));
+
+            Bounds paneBounds1 = scroll_bar.localToScene(scroll_bar.getBoundsInParent());
             if (scroll_bar.getContent() instanceof Parent) {
-                for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
-                    Bounds nodeBounds = n.localToScene(n.getBoundsInLocal());
-                    if (paneBounds.intersects(nodeBounds)) {
-                        visibleNodes.add(n);
+                for (Node n : nodes1 ) {
+                    Bounds nodeBounds1 = n.localToScene(n.getBoundsInLocal());
+                    if (paneBounds1.intersects(nodeBounds1)) {
+                        visibleNodes1.add(n);
                     }
                 }
             }
 
-            for(Node n : visibleNodes)
+            for(Node n : visibleNodes1)
                 for(Post post1 : Post.Posts)
                     if(n.getId().equals(String.valueOf(post1.getId())))
                     {
                         TextFlow t = (TextFlow) n;
-                        ((Label)(((VBox)(((TextFlow)(t.getChildren().get(1))).getChildren().get(0))).getChildren().get(1))).setStyle("-fx-font-size: 15;");
+                        if(((VBox)(t.getChildren().get(0))).getChildren().size() > 2 && (((VBox)(t.getChildren().get(0))).getChildren().get(2)).getClass().getSimpleName().equals("Label"))
+                            ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(2))).setStyle("-fx-font-size: 15;");
+
+                        else
+                            ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(1))).setStyle("-fx-font-size: 15;");
                         DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                         String date = LocalDateTime.now().format(formatter1);
                         post1.seens.put(String.valueOf(user.getID()),date);
-                        System.out.println(post1.getContext());
 
                     }
+            loadData(user);
         } );
 
-
+        loadData(user);
     }
 
 
@@ -1493,10 +1574,6 @@ public class MainPageController {
                     watchers.add(uu);
         }
 
-        for(User u : watchers)
-            System.out.println(u.getUserName());
-
-
         Label text2 = new Label(post.getTitle() +"       "+"\n" +
                 post.getContext());
 
@@ -1542,7 +1619,7 @@ public class MainPageController {
         vBox.getChildren().add(hBox);
 
         //Remember to turn the user.isNormal to !user.isNormal
-        if(user.isNormal && post.getOwner().getID() == user.getID()) {
+        if(!user.isNormal && post.getOwner().getID() == user.getID()) {
             Label views = new Label(post.getSeens().size() + " views");
             views.setStyle("-fx-text-fill: rgb(150,150,150);" + "-fx-font-size: 13;");
             views.setTranslateX(10);
@@ -1617,6 +1694,84 @@ public class MainPageController {
         container.getChildren().add(textFlow);
         chat_box.getChildren().add(container);
 
+        /*ArrayList<Node> nodes = new ArrayList<>();
+        for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
+            TextFlow t = (TextFlow) n;
+            nodes.add(t.getChildren().get(1));
+        }
+
+        List<Node> visibleNodes = new ArrayList<>();
+        Bounds paneBounds = scroll_bar.localToScene(scroll_bar.getBoundsInParent());
+        if (scroll_bar.getContent() instanceof Parent) {
+            for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
+                Bounds nodeBounds = n.localToScene(n.getBoundsInLocal());
+                if (paneBounds.intersects(nodeBounds)) {
+                    visibleNodes.add(n);
+                }
+            }
+        }
+
+        for(Node n : visibleNodes)
+            System.out.println(n.getId());
+
+        for(Node n : visibleNodes)
+            for(Post post1 : Post.Posts)
+                if(n.getId().equals(String.valueOf(post1.getId())))
+                {
+                    TextFlow t = (TextFlow) n;
+                    ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(1))).setStyle("-fx-font-size: 15;");
+                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    String date = LocalDateTime.now().format(formatter1);
+                    if(!watchers.contains(user))
+                    post1.seens.put(String.valueOf(user.getID()),date);
+                    if(!user.isNormal && post.getOwner().getID() == user.getID())
+                        ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(3))).setText(post.getSeens().size() + " views");
+
+                }*/
+
+        ArrayList<Node> nodes = new ArrayList<>();
+        for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
+            TextFlow t = (TextFlow) n;
+            nodes.add(t.getChildren().get(1));
+        }
+
+        List<Node> visibleNodes = new ArrayList<>();
+
+        Node nn = ((VBox) (scroll_bar.getContent())).getChildren().get((((VBox) (scroll_bar.getContent())).getChildren()).size()-1);
+        TextFlow tt = (TextFlow) nn;
+        visibleNodes.add(tt.getChildren().get(1));
+
+
+
+        Bounds paneBounds = scroll_bar.localToScene(scroll_bar.getBoundsInParent());
+        if (scroll_bar.getContent() instanceof Parent) {
+            for (Node n : nodes ) {
+                Bounds nodeBounds = n.localToScene(n.getBoundsInLocal());
+                if (paneBounds.intersects(nodeBounds)) {
+                    visibleNodes.add(n);
+                }
+            }
+        }
+
+        for(Node n : visibleNodes)
+            for(Post post1 : Post.Posts)
+                if(n.getId().equals(String.valueOf(post1.getId())))
+                {
+                    TextFlow t = (TextFlow) n;
+                    if(((VBox)(t.getChildren().get(0))).getChildren().size() > 2 && (((VBox)(t.getChildren().get(0))).getChildren().get(2)).getClass().getSimpleName().equals("Label"))
+                        ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(2))).setStyle("-fx-font-size: 15;");
+
+                    else
+                        ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(1))).setStyle("-fx-font-size: 15;");
+                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    String date = LocalDateTime.now().format(formatter1);
+                    if(!watchers.contains(user))
+                        post1.seens.put(String.valueOf(user.getID()),date);
+                    if(!user.isNormal && post.getOwner().getID() == user.getID())
+                        ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(3))).setText(post.getSeens().size() + " views");
+                }
+
+
         scroll_bar.vvalueProperty().addListener( ( observable, oldValue, newValue ) ->
         {
             /*final  Bounds viewBounds = scroll_bar.getViewportBounds();
@@ -1629,37 +1784,38 @@ public class MainPageController {
                        String date = LocalDateTime.now().format(formatter1);
                        post.seens.put(String.valueOf(user.getID()),date);
                    }*/
-            //ArrayList<Node> nodes = new ArrayList<>();
-            //for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
-                //for(Node n1 : )
-            //}
+            ArrayList<Node> nodes1 = new ArrayList<>();
+            for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
+                TextFlow t = (TextFlow) n;
+                nodes1.add(t.getChildren().get(1));
+            }
 
-            List<Node> visibleNodes = new ArrayList<>();
-            Bounds paneBounds = scroll_bar.localToScene(scroll_bar.getBoundsInParent());
+            List<Node> visibleNodes1 = new ArrayList<>();
+            Bounds paneBounds1 = scroll_bar.localToScene(scroll_bar.getBoundsInParent());
             if (scroll_bar.getContent() instanceof Parent) {
-                for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
+                for (Node n : nodes1 ) {
                     Bounds nodeBounds = n.localToScene(n.getBoundsInLocal());
-                    if (paneBounds.intersects(nodeBounds)) {
-                        visibleNodes.add(n);
+                    if (paneBounds1.intersects(nodeBounds)) {
+                        visibleNodes1.add(n);
                     }
                 }
             }
 
-            for(Node n : visibleNodes)
+            for(Node n : visibleNodes1)
                 for(Post post1 : Post.Posts)
                     if(n.getId().equals(String.valueOf(post1.getId())))
                     {
                         TextFlow t = (TextFlow) n;
-                        ((Label)(((VBox)(((TextFlow)(t.getChildren().get(1))).getChildren().get(0))).getChildren().get(1))).setStyle("-fx-font-size: 15;");
+                        ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(1))).setStyle("-fx-font-size: 15;");
                         DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                         String date = LocalDateTime.now().format(formatter1);
+                        if(!watchers.contains(user))
                         post1.seens.put(String.valueOf(user.getID()),date);
-                        System.out.println(post1.getContext());
+                        if(!user.isNormal && post.getOwner().getID() == user.getID())
+                            ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(3))).setText(post.getSeens().size() + " views");
 
                     }
 
-
-            System.out.println();
         } );
 
 
@@ -1832,14 +1988,28 @@ public class MainPageController {
             if(c.getComments().contains(comment)){
                 Label label = new Label("   "+c.getOwner().getUserName()+"\n"+"   "+c.getContext());
                 //label.setTranslateX(10);
+                if(c.getContext().length() > 7)
+                    label.setText(c.getOwner().getUserName() +"\n"+ c.getContext().substring(0,7) + "...");
+
                 if(comment.getOwner().getID() == user.getID())
                    label.setStyle("-fx-font-size: 13;"+"-fx-background-color: rgb(120,173,192);"+"-fx-text-fill: rgb(84,82,82);");
 
                 else
                     label.setStyle("-fx-font-size: 13;"+"-fx-background-color: rgb(111,113,115);"+"-fx-text-fill: rgb(49,48,48);");
 
+                //label.setTranslateX(10);
                 label.setMaxWidth(Double.MAX_VALUE);
+
+                label.setOnMouseClicked(event -> {
+                    for(Node t : chat_box.getChildren())
+                        if(t.getId().equals(String.valueOf(c.getId()))){
+                            final  Bounds viewBounds = scroll_bar.getViewportBounds();
+                            scroll_bar.setVvalue(t.getLayoutY()/viewBounds.getHeight());
+                        }
+                });
+
                 vBox.getChildren().add(label);
+
 
             }
 
@@ -2011,8 +2181,27 @@ public class MainPageController {
         if(AllPosts.isEmpty())
             text  = new Label(user1.getUserName() + "\n" + "No Chat Here");
 
-        else
-            text  = new Label(user1.getUserName() + "\n" + AllPosts.get(AllPosts.size()-1).getContext());
+        else {
+            if(AllPosts.get(AllPosts.size()-1).getSeens().containsKey(String.valueOf(user.getID()))){
+                if (AllPosts.get(AllPosts.size() - 1).getContext().length() > 10)
+                    text = new Label(user1.getUserName() + "\n" + AllPosts.get(AllPosts.size() - 1).getContext().substring(0, 10) + "...");
+
+                else
+                    text = new Label(user1.getUserName() + "\n" + AllPosts.get(AllPosts.size() - 1).getContext());
+            }
+
+            else {
+                if (AllPosts.get(AllPosts.size() - 1).getContext().length() > 10) {
+                    text = new Label(user1.getUserName() + "\n" + AllPosts.get(AllPosts.size() - 1).getContext().substring(0, 10) + "...");
+
+                }
+
+                else
+                    text = new Label(user1.getUserName() + "\n" + AllPosts.get(AllPosts.size() - 1).getContext());
+
+                text.setStyle("-fx-font-weight: bold;");
+            }
+        }
 
         textFlow.setTranslateY(-profileImage.getFitHeight()/2);
         container.getChildren().add(profileImage);
@@ -2025,12 +2214,7 @@ public class MainPageController {
         textFlow.setMaxHeight(TextFlow.USE_COMPUTED_SIZE );
 
 
-        container.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                ChoosePVChat(event,AllPosts);
-            }
-        });
+        container.setOnMouseClicked(event -> ChoosePVChat(event,AllPosts));
 
 
         container.setPrefHeight(60);
