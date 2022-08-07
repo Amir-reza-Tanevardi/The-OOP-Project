@@ -120,66 +120,7 @@ public class Group  {
     }
 
 
-    public static void CreateGroup(Scanner scanner , User user) throws SQLException {
-        System.out.println("Choose Your group Name");
-        Group group = new Group(scanner.nextLine());
-        group.setOwner(user);
-        group.getMembers().add(user);
-
-        group.setID(DBManager.getMaxId()+1);
-
-        //System.out.println("Choose members. Type in 'Exit' to end process.");
-
-        User.viewOptions(scanner , user,group);
-
-        System.out.println("Group Created Successfully.");
-
-
-        group.setNumberOfUsers(group.getMembers().size());
-
-        for(User user1 : group.getMembers()){
-            user1.getGroups().add(group);
-        }
-
-    }
-
-    public static void viewGroups(Scanner scanner ,User user) throws SQLException{
-
-        for(Group group : user.getGroups()){
-            System.out.println(group.getID()+". "+group.getGroupName());
-            if(group.getPosts().size()!=0) System.out.println("      "+group.getPosts().get(group.getPosts().size()-1)+"\n\n");
-        }
-
-        for(Group group : user.getGroups()){
-            if(group.getID()==Integer.parseInt(scanner.nextLine())){
-                viewGroup(group , user);
-                break;
-            }
-        }
-
-
-    }
-
-    private static void viewGroup(Group group , User user){
-        System.out.println("\n\n" + group.getGroupName());
-        System.out.println(group.getNumberOfUsers() + "  Members \n");
-
-        for(Post post : group.getPosts()){
-               if(post.getOwner().getID()== user.getID()){
-                   System.out.println("\t\t\t\t\t "+post.getContext()+"  "+post.getOwner().getUserName());
-               }
-
-               else
-               {
-                   System.out.println(post.getOwner().getUserName() + "   " + post.getContext());
-               }
-        }
-
-    }
-
     int getID() {return ID;}
-
-
 
     @Override
     public boolean equals(Object other) {

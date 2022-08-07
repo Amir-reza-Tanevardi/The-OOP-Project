@@ -108,7 +108,6 @@ public class GmessagesOptions_Controller {
             }
 
             else{
-                System.out.println("not comment");
                 for (Group group : Group.Groups)
                     if (group.getPosts().contains(post)) {
                         group.getPosts().remove(post);

@@ -237,4 +237,148 @@ public class NewGroupController {
         event.consume();
     }
 
+    public void LoginToMainPage(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("MainPage.fxml"));
+        Parent parent = loader.load();
+
+        Scene scene = new Scene(parent);
+
+        MainPageController mainPageController = loader.getController();
+        mainPageController.initialize(us);
+
+        Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+
+        MainStage.setOnCloseRequest(event1 -> {
+
+            //update All Posts
+            for(Post post : Post.Posts){
+
+                post.getLikersId().clear();
+                for(User user1 : post.getLikers())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    //if(!post.getLikersId().contains((double) user1.getID()))
+                    post.getLikersId().add((double) user1.getID());
+                }
+
+
+                post.getCommentsId().clear();
+                for(Comment comment : post.getComments())
+                {
+                    post.getCommentsId().add((double)comment.getId());
+                    //if(!post.getCommentsId().contains((double)comment.getId()))
+                    //post.getCommentsId().add((double)comment.getId());
+                }
+
+                post.getRepliesId().clear();
+                for(Post p : post.getReplies())
+                    post.getRepliesId().add((double)p.getId());
+
+                DBManagerTester.update(post);
+            }
+
+            //update All Comments
+            for(Comment comment : Comment.Comments){
+                comment.setOwnerId(comment.getOwner().getID());
+
+                comment.getLikersId().clear();
+                for(User user1 : comment.getLikers())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    comment.getLikersId().add((double) user1.getID());
+                }
+
+                comment.getCommentsId().clear();
+                for(Comment c : comment.getComments())
+                {
+                    comment.getCommentsId().add((double)c.getId());
+                    //if(!post.getCommentsId().contains((double)comment.getId()))
+                    //post.getCommentsId().add((double)comment.getId());
+                }
+
+
+                DBManagerTester.update(comment);
+            }
+
+
+            //update All Groups
+            for(Group group : Group.Groups){
+
+                group.getMembersId().clear();
+                for(User user1 : group.getMembers())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    group.getMembersId().add((double) user1.getID());
+                }
+
+                group.getPostsId().clear();
+                for(Post post : group.getPosts())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    group.getPostsId().add((double)post.getId());
+                }
+
+                DBManagerTester.update(group);
+            }
+
+            //update all users
+            for(User user1 : User.Users)
+            {
+                user1.getPostsId().clear();
+                for(Post post : user1.getPosts())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    user1.getPostsId().add((double)post.getId());
+                }
+
+                user1.getSavedPostsId().clear();
+                for(Post post : user1.getSavedPosts())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    user1.getSavedPostsId().add((double)post.getId());
+                }
+
+                user1.getLikedPostsId().clear();
+                for(Post post : user1.getLikedPosts())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    user1.getLikedPostsId().add((double)post.getId());
+                }
+
+                user1.getReceivedMessagesId().clear();
+                for(Post post : user1.getReceivedMessages())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    user1.getReceivedMessagesId().add((double)post.getId());
+                }
+
+                user1.getGroupsId().clear();
+                for(Group group : user1.getGroups())
+                {
+                    user1.getGroupsId().add((double)group.getID());
+                }
+
+                user1.getFollowersId().clear();
+                for(User u : user1.getFollowers())
+                {
+                    user1.getFollowersId().add((double)u.getID());
+                }
+
+                user1.getFollowedId().clear();
+                for(User u : user1.getFollowed())
+                {
+                    user1.getFollowedId().add((double)u.getID());
+                }
+
+                DBManagerTester.update(user1);
+            }
+        });
+
+        MainStage.setScene(scene);
+        MainStage.show();
+
+    }
+
 }

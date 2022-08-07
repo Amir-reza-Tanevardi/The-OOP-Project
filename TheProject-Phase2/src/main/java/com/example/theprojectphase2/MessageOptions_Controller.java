@@ -120,7 +120,6 @@ public class MessageOptions_Controller {
         AnchorPane.setRightAnchor(confirm,10.0);
         VBox vBox1 = (VBox) textFlow.getChildren().get(0);
         Label label = (Label) vBox1.getChildren().get(1);
-        System.out.println(label.getText());
         String[] ss = label.getText().split("\\r?\\n");
         String content = "";
         for (int i = 1; i < ss.length; i++) {

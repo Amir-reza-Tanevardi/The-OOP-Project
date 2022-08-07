@@ -748,8 +748,6 @@ public class MainPageController {
                             main_type.clear();
                         }
 
-                    else
-                        System.out.println("it is empty");
 
                  break;
 
@@ -1011,9 +1009,6 @@ public class MainPageController {
 
                             DBManagerTester.insert(comment);
 
-                            System.out.println(send_button.getId());
-                            System.out.println(send_button.getId().substring(send_button.getId().indexOf("-")));
-
                             for(Comment c : Comment.Comments)
                                 if(c.getId() == Integer.parseInt(send_button.getId().substring(send_button.getId().indexOf("-")+1)))
                                     c.getComments().add(comment);
@@ -1165,7 +1160,6 @@ public class MainPageController {
                 controller.getButton().setManaged(false);
                 for (Comment c : Comment.Comments)
                     if (c.getId() == Integer.parseInt(textFlow.getId().substring(0,textFlow.getId().length()-1))) {
-                        System.out.println(c.getContext());
                         controller.initialize(textFlow, (Post) c, user, main_type, title, view);
                         break;
                     }
@@ -1698,40 +1692,6 @@ public class MainPageController {
         container.getChildren().add(textFlow);
         chat_box.getChildren().add(container);
 
-        /*ArrayList<Node> nodes = new ArrayList<>();
-        for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
-            TextFlow t = (TextFlow) n;
-            nodes.add(t.getChildren().get(1));
-        }
-
-        List<Node> visibleNodes = new ArrayList<>();
-        Bounds paneBounds = scroll_bar.localToScene(scroll_bar.getBoundsInParent());
-        if (scroll_bar.getContent() instanceof Parent) {
-            for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
-                Bounds nodeBounds = n.localToScene(n.getBoundsInLocal());
-                if (paneBounds.intersects(nodeBounds)) {
-                    visibleNodes.add(n);
-                }
-            }
-        }
-
-        for(Node n : visibleNodes)
-            System.out.println(n.getId());
-
-        for(Node n : visibleNodes)
-            for(Post post1 : Post.Posts)
-                if(n.getId().equals(String.valueOf(post1.getId())))
-                {
-                    TextFlow t = (TextFlow) n;
-                    ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(1))).setStyle("-fx-font-size: 15;");
-                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                    String date = LocalDateTime.now().format(formatter1);
-                    if(!watchers.contains(user))
-                    post1.seens.put(String.valueOf(user.getID()),date);
-                    if(!user.isNormal && post.getOwner().getID() == user.getID())
-                        ((Label)(((VBox)(t.getChildren().get(0))).getChildren().get(3))).setText(post.getSeens().size() + " views");
-
-                }*/
 
         ArrayList<Node> nodes = new ArrayList<>();
         for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
@@ -2080,30 +2040,6 @@ public class MainPageController {
         container.setTextAlignment(TextAlignment.LEFT);
         textFlow.setTranslateX(20);
 
-
-        /*container.localToSceneTransformProperty().addListener( ( observable, oldValue, newValue ) ->
-        {
-            final Bounds boundsOnScene = container.localToScene( container.getBoundsInLocal() );
-            if(boundsOnScene.getMinY() > 0 && boundsOnScene.getMinY() < vBox.getHeight() && !watchers.contains(user))
-                for(Post post1 : Post.Posts)
-                    if(post1.getId() == Integer.parseInt(container.getId())){
-                        text2.setStyle("-fx-font-size: 12;");
-                        post.seens.put(String.valueOf(user.getID()),LocalDateTime.now());
-                    }
-
-            //System.out.println(boundsOnScene.getMinY());
-            //System.out.println(vBox.getHeight());
-        } );*/
-        /*
-        for(Comment comment1 : comment.getComments()){
-            TextFlow t = loadComment(comment1);
-            chat_box.getChildren().add(t);
-            t.setTranslateX(40);
-            t.setVisible(false);
-            t.setManaged(false);
-            t.setDisable(true);
-
-        }*/
 
         int d =0;
         for(Post p : Post.Posts)
