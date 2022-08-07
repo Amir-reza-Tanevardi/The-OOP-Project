@@ -512,6 +512,9 @@ public class MainPageController {
             for(User u : user.getFollowed()){
                 newPosts.addAll(u.getPosts());}
 
+            for(Post p : user.getLikedPosts())
+                newPosts.addAll(p.getOwner().getPosts());
+
 
             Collections.sort(newPosts);
             //not sure if it sorted it ascending or descending. if didn't get
