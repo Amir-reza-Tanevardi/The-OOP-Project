@@ -1174,6 +1174,9 @@ public class MainPageController {
         double x = textFlow.getScene().getWindow().getX();
         double y = textFlow.getScene().getWindow().getY();
 
+        popup.setX(x + event.getSceneX());
+        popup.setY(y + event.getSceneY());
+
         popup.getContent().add(parent);
 
         popup.setAutoHide(true);
@@ -1368,7 +1371,7 @@ public class MainPageController {
         ArrayList<Node> nodes = new ArrayList<>();
         for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
             TextFlow t = (TextFlow) n;
-            if(post.getOwner().getID() == user.getID())
+            if(t.getChildren().get(0).getClass().getSimpleName().equals("TextFlow"))
                 nodes.add(t.getChildren().get(0));
 
             else
@@ -1379,7 +1382,7 @@ public class MainPageController {
 
         Node nn = ((VBox) (scroll_bar.getContent())).getChildren().get(0);
         TextFlow tt = (TextFlow) nn;
-        if(post.getOwner().getID() == user.getID())
+        if(tt.getChildren().get(0).getClass().getSimpleName().equals("TextFlow"))
             visibleNodes.add(tt.getChildren().get(0));
 
         else
@@ -1427,7 +1430,7 @@ public class MainPageController {
             ArrayList<Node> nodes1 = new ArrayList<>();
             for (Node n : ((VBox) (scroll_bar.getContent())).getChildren() ) {
                TextFlow t = (TextFlow) n;
-               if(post.getOwner().getID() == user.getID())
+               if(t.getChildren().get(0).getClass().getSimpleName().equals("TextFlow"))
                   nodes1.add(t.getChildren().get(0));
 
                else
@@ -1438,7 +1441,7 @@ public class MainPageController {
 
             Node nn1 = ((VBox) (scroll_bar.getContent())).getChildren().get(0);
             TextFlow tt1 = (TextFlow) nn1;
-            if(post.getOwner().getID() == user.getID())
+            if(tt1.getChildren().get(0).getClass().getSimpleName().equals("TextFlow"))
                 visibleNodes1.add(tt1.getChildren().get(0));
 
             else
@@ -2404,8 +2407,10 @@ public class MainPageController {
 
         Stage MainStage = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
+
         //update All Posts
         for(Post post : Post.Posts){
+
             post.getLikersId().clear();
             for(User user1 : post.getLikers())
             {
@@ -2413,6 +2418,7 @@ public class MainPageController {
                 //if(!post.getLikersId().contains((double) user1.getID()))
                 post.getLikersId().add((double) user1.getID());
             }
+
 
             post.getCommentsId().clear();
             for(Comment comment : post.getComments())
@@ -2422,6 +2428,10 @@ public class MainPageController {
                 //post.getCommentsId().add((double)comment.getId());
             }
 
+            post.getRepliesId().clear();
+            for(Post p : post.getReplies())
+                post.getRepliesId().add((double)p.getId());
+
             DBManagerTester.update(post);
         }
 
@@ -2429,12 +2439,19 @@ public class MainPageController {
         for(Comment comment : Comment.Comments){
             comment.setOwnerId(comment.getOwner().getID());
 
-
+            comment.getLikersId().clear();
             for(User user1 : comment.getLikers())
             {
                 //post.getLikersId().retainAll(user.getID());
-                if(!comment.getLikersId().contains((double) user1.getID()))
-                    comment.getLikersId().add((double) user1.getID());
+                comment.getLikersId().add((double) user1.getID());
+            }
+
+            comment.getCommentsId().clear();
+            for(Comment c : comment.getComments())
+            {
+                comment.getCommentsId().add((double)c.getId());
+                //if(!post.getCommentsId().contains((double)comment.getId()))
+                //post.getCommentsId().add((double)comment.getId());
             }
 
 
@@ -2445,18 +2462,18 @@ public class MainPageController {
         //update All Groups
         for(Group group : Group.Groups){
 
+            group.getMembersId().clear();
             for(User user1 : group.getMembers())
             {
                 //post.getLikersId().retainAll(user.getID());
-                if(!group.getMembersId().contains((double)user1.getID()))
-                    group.getMembersId().add((double) user1.getID());
+                group.getMembersId().add((double) user1.getID());
             }
 
+            group.getPostsId().clear();
             for(Post post : group.getPosts())
             {
                 //post.getLikersId().retainAll(user.getID());
-                if(!group.getPostsId().contains((double)post.getId()))
-                    group.getPostsId().add((double)post.getId());
+                group.getPostsId().add((double)post.getId());
             }
 
             DBManagerTester.update(group);
@@ -2465,60 +2482,180 @@ public class MainPageController {
         //update all users
         for(User user1 : User.Users)
         {
+            user1.getPostsId().clear();
             for(Post post : user1.getPosts())
             {
                 //post.getLikersId().retainAll(user.getID());
-                if(!user1.getPostsId().contains((double)post.getId()))
-                    user1.getPostsId().add((double)post.getId());
+                user1.getPostsId().add((double)post.getId());
             }
 
+            user1.getSavedPostsId().clear();
             for(Post post : user1.getSavedPosts())
             {
                 //post.getLikersId().retainAll(user.getID());
-                if(!user1.getSavedPostsId().contains((double)post.getId()))
-                    user1.getSavedPostsId().add((double)post.getId());
+                user1.getSavedPostsId().add((double)post.getId());
             }
 
+            user1.getLikedPostsId().clear();
             for(Post post : user1.getLikedPosts())
             {
                 //post.getLikersId().retainAll(user.getID());
-                if(!user1.getLikedPostsId().contains((double)post.getId()))
-                    user1.getLikedPostsId().add((double)post.getId());
+                user1.getLikedPostsId().add((double)post.getId());
             }
 
+            user1.getReceivedMessagesId().clear();
             for(Post post : user1.getReceivedMessages())
             {
                 //post.getLikersId().retainAll(user.getID());
-                if(!user1.getReceivedMessagesId().contains((double)post.getId()))
-                    user1.getReceivedMessagesId().add((double)post.getId());
+                user1.getReceivedMessagesId().add((double)post.getId());
             }
 
+            user1.getGroupsId().clear();
             for(Group group : user1.getGroups())
             {
-                //post.getLikersId().retainAll(user.getID());
-                if(!user1.getGroupsId().contains((double)group.getID())){
-                    user1.getGroupsId().add((double)group.getID());
-                }
-
+                user1.getGroupsId().add((double)group.getID());
             }
 
+            user1.getFollowersId().clear();
             for(User u : user1.getFollowers())
             {
-                //post.getLikersId().retainAll(user.getID());
-                if(!user1.getFollowersId().contains((double)u.getID()))
-                    user1.getFollowersId().add((double)u.getID());
+                user1.getFollowersId().add((double)u.getID());
             }
 
-
+            user1.getFollowedId().clear();
             for(User u : user1.getFollowed())
             {
-                //post.getLikersId().retainAll(user.getID());
-                if(!user1.getFollowedId().contains((double)u.getID()))
-                    user1.getFollowedId().add((double)u.getID());
+                user1.getFollowedId().add((double)u.getID());
             }
 
             DBManagerTester.update(user1);
         }
+
+        MainStage.setOnCloseRequest(event1 -> {
+
+            //update All Posts
+            for(Post post : Post.Posts){
+
+                post.getLikersId().clear();
+                for(User user1 : post.getLikers())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    //if(!post.getLikersId().contains((double) user1.getID()))
+                    post.getLikersId().add((double) user1.getID());
+                }
+
+
+                post.getCommentsId().clear();
+                for(Comment comment : post.getComments())
+                {
+                    post.getCommentsId().add((double)comment.getId());
+                    //if(!post.getCommentsId().contains((double)comment.getId()))
+                    //post.getCommentsId().add((double)comment.getId());
+                }
+
+                post.getRepliesId().clear();
+                for(Post p : post.getReplies())
+                    post.getRepliesId().add((double)p.getId());
+
+                DBManagerTester.update(post);
+            }
+
+            //update All Comments
+            for(Comment comment : Comment.Comments){
+                comment.setOwnerId(comment.getOwner().getID());
+
+                comment.getLikersId().clear();
+                for(User user1 : comment.getLikers())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    comment.getLikersId().add((double) user1.getID());
+                }
+
+                comment.getCommentsId().clear();
+                for(Comment c : comment.getComments())
+                {
+                    comment.getCommentsId().add((double)c.getId());
+                    //if(!post.getCommentsId().contains((double)comment.getId()))
+                    //post.getCommentsId().add((double)comment.getId());
+                }
+
+
+                DBManagerTester.update(comment);
+            }
+
+
+            //update All Groups
+            for(Group group : Group.Groups){
+
+                group.getMembersId().clear();
+                for(User user1 : group.getMembers())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    group.getMembersId().add((double) user1.getID());
+                }
+
+                group.getPostsId().clear();
+                for(Post post : group.getPosts())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    group.getPostsId().add((double)post.getId());
+                }
+
+                DBManagerTester.update(group);
+            }
+
+            //update all users
+            for(User user1 : User.Users)
+            {
+                user1.getPostsId().clear();
+                for(Post post : user1.getPosts())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    user1.getPostsId().add((double)post.getId());
+                }
+
+                user1.getSavedPostsId().clear();
+                for(Post post : user1.getSavedPosts())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    user1.getSavedPostsId().add((double)post.getId());
+                }
+
+                user1.getLikedPostsId().clear();
+                for(Post post : user1.getLikedPosts())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    user1.getLikedPostsId().add((double)post.getId());
+                }
+
+                user1.getReceivedMessagesId().clear();
+                for(Post post : user1.getReceivedMessages())
+                {
+                    //post.getLikersId().retainAll(user.getID());
+                    user1.getReceivedMessagesId().add((double)post.getId());
+                }
+
+                user1.getGroupsId().clear();
+                for(Group group : user1.getGroups())
+                {
+                    user1.getGroupsId().add((double)group.getID());
+                }
+
+                user1.getFollowersId().clear();
+                for(User u : user1.getFollowers())
+                {
+                    user1.getFollowersId().add((double)u.getID());
+                }
+
+                user1.getFollowedId().clear();
+                for(User u : user1.getFollowed())
+                {
+                    user1.getFollowedId().add((double)u.getID());
+                }
+
+                DBManagerTester.update(user1);
+            }
+        });
 
         MainStage.setScene(scene);
         MainStage.show();
