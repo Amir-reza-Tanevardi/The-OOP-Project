@@ -513,7 +513,9 @@ public class MainPageController {
                 newPosts.addAll(u.getPosts());}
 
             for(Post p : user.getLikedPosts())
-                newPosts.addAll(p.getOwner().getPosts());
+                for(Post pp : p.getOwner().getPosts())
+                    if(!newPosts.contains(pp))
+                        newPosts.add(pp);
 
 
             Collections.sort(newPosts);
