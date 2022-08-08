@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.NoSuchElementException;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.google.gson.annotations.Expose;
@@ -483,11 +484,11 @@ public class User implements Sendable {
                             MAGENTA_TEXT());
             res += "      by " + w.getUser().username + "\n";
         }
-        res += colorize("Posts statistics", WHITE_TEXT(), CYAN_BACK())+"\n";
+        res += colorize("Posts statistics", WHITE_TEXT(), CYAN_BACK()) + "\n";
         for (var p : postIds.stream().map(e -> Post.getWithId(e)).collect(Collectors.toList())) {
             res += p.toString();
             for (var w : p.getAllWatches()) {
-                res+="\n\n";
+                res += "\n\n";
                 res += colorize("  watched at: ", BRIGHT_GREEN_TEXT()) + colorize(
                         w.getDateTime().format(DateTimeFormatter.ofPattern("hh:mm a\n             yyyy-LLL-dd\n")),
                         MAGENTA_TEXT());
@@ -497,10 +498,38 @@ public class User implements Sendable {
                 res += colorize("  liked at: ", RED_TEXT()) + colorize(
                         l.getDateTime().format(DateTimeFormatter.ofPattern("hh:mm a\n       yyyy-LLL-dd\n")),
                         MAGENTA_TEXT());
-                res += colorize("  by " + l.getLiker().username,RED_TEXT()) + "\n";
+                res += colorize("  by " + l.getLiker().username, RED_TEXT()) + "\n";
             }
         }
         App.prLn(res);
+    }
+
+    public void recommendFriend() {
+        TreeMap<Integer, Integer> data = new TreeMap<>();
+        ArrayList<Integer> commons = new ArrayList<>();
+        var temp = new ArrayList<User>();
+        temp.addAll(getAllFollowers());
+        temp.addAll(getAllFollowings());
+        
+        for (var f : temp) {
+            commons.addAll(f.followersIds);
+            commons.addAll(f.followingsIds);
+        }
+        for (var c : commons) {
+            int count = 0;
+            for (var d : commons) {
+                if (d == c) {
+                    count++;
+                }
+            }
+            data.put(count, c);
+        }
+
+        App.prLn(colorize("best cases for you:", CYAN_TEXT(), BOLD()));
+        for (var c : data.values()) {
+            if (!followersIds.contains(c))
+                App.prLn(colorize(User.getWithId(c).getUserName(), GREEN_TEXT(), BOLD()));
+        }
     }
 
 }

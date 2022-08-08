@@ -104,7 +104,13 @@ public class App {
                         prLn("Successful!");
                         break;
                     }
-
+                    case "friend_recommend":{
+                        if(loggedInUser == null){
+                            throw new NullPointerException();//TODO fix
+                        }
+                        loggedInUser.recommendFriend();
+                        break;
+                    }
                     case "login_user": {
                         String userId = getInput("Id");
                         String password = getInput("Password");
